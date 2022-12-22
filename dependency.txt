@@ -1,0 +1,7 @@
+Tools:
+clang
+
+lib: (in C:\lib\${libname} )
+Vulkan (1.3.231.1) with glm
+GLFW (3.3.x)
+tinyGltf

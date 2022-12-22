@@ -33,8 +33,8 @@ add_library(GLFW SHARED IMPORTED) # or STATIC instead of SHARED
 
 set_target_properties(GLFW PROPERTIES
   #IMPORTED_LOCATION "${CMAKE_LIBRARY_PATH}/GLFW/glfw-3.3.5.bin.WIN64/glfw-3.3.5.bin.WIN64/lib-vc2022/glfw3.lib"
-  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_LIBRARY_PATH}/GLFW/glfw-3.3.5.bin.WIN64/glfw-3.3.5.bin.WIN64/include"
-  IMPORTED_IMPLIB "${CMAKE_LIBRARY_PATH}/GLFW/glfw-3.3.5.bin.WIN64/glfw-3.3.5.bin.WIN64/lib-vc2022/glfw3.lib"
+  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_LIBRARY_PATH}/GLFW/include"
+  IMPORTED_IMPLIB "${CMAKE_LIBRARY_PATH}/GLFW/lib-vc2022/glfw3.lib"
 	#win only tag??
 )
 
@@ -42,7 +42,7 @@ set_target_properties(GLFW PROPERTIES
 add_library(TINYGLTF INTERFACE)
 set_target_properties(TINYGLTF PROPERTIES
   #IMPORTED_LOCATION "${CMAKE_LIBRARY_PATH}/GLFW/glfw-3.3.5.bin.WIN64/glfw-3.3.5.bin.WIN64/lib-vc2022/glfw3.lib"
-  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_LIBRARY_PATH}/TyniGLTF/include"
+  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_LIBRARY_PATH}/TinyGLTF/include"
 )
 
 #link target to lib
@@ -66,7 +66,7 @@ add_custom_target(build-time-make-directory ALL
     COMMAND ${CMAKE_COMMAND} -E make_directory ${RESOURCESPATH}/shaders)
 add_custom_command( TARGET ${PROJECT_NAME}
     POST_BUILD
-    COMMAND compile.bat ${RESOURCESPATH}/shaders
+    COMMAND compile.bat ${RESOURCESPATH}/shaders ${Vulkan_INCLUDE_DIR}/../
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/shaders
     COMMENT "compiling shader..."
 )

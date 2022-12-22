@@ -60,7 +60,7 @@ SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurface
     return details;
 }
 
-_NODISCARD void createImageViews(VkDevice device, SwapChainData& data)
+void createImageViews(VkDevice device, SwapChainData& data)
 {
     data.ImageViews.resize(data.Images.size());
 

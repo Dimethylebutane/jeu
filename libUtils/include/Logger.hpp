@@ -66,7 +66,7 @@ struct LoggerBuffer
 	LoggerBuffer& operator=(LoggerBuffer&&) = delete;
 
 	//l/rvalue stuff ?for pipe?
-	LoggerBuffer(LoggerBuffer && buf) noexcept : ss(move(buf.ss)), loggerStream(buf.loggerStream) {}
+	LoggerBuffer(LoggerBuffer&& buf) noexcept : ss(std::move(buf.ss)), loggerStream(buf.loggerStream) {}
 
 	template <typename T>
 	LoggerBuffer& operator<<(T&& message)
