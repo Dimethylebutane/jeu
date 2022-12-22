@@ -1,0 +1,12 @@
+# ninja log v5
+9	19	0	clean	8c45b54705a541e8
+37	1437	6914469512880033	CMakeFiles/JEU.dir/src/Model.cpp.obj	1876d9eb186ec8a3
+41	132	0	CMakeFiles/build-time-make-directory	e3a5bf91ed4e1366
+25	3637	6914642313918373	CMakeFiles/JEU.dir/jeu.cpp.obj	f9fdbf771ac1cdb
+3637	5343	6914642316117497	JEU.exe	dffa46269812afcf
+41	132	0	C:/prgrm/jeu/out/build/x64-debug/CMakeFiles/build-time-make-directory	e3a5bf91ed4e1366
+36	1367	6914642290916823	CMakeFiles/JEU.dir/src/SwapChain.cpp.obj	fcd81f8f734fc8da
+43	1885	6914433412094060	libUtils/CMakeFiles/libUtils.dir/src/Logger.cpp.obj	db551b10754d4c3f
+31	499	6914456101637458	libUtils/libUtils.lib	11b72f6d413201a5
+44	1062	6914469509010231	CMakeFiles/JEU.dir/src/BuffersUtils.cpp.obj	8e51a529925bc98c
+68	1237	6914468946332231	CMakeFiles/JEU.dir/src/QueueUtils.cpp.obj	72c9fae1be58186c
