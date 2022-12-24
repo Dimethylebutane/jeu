@@ -30,6 +30,9 @@
 #include "Settings.hpp"
 #include "include/Model.hpp"
 #include "include/CommandPool.hpp"
+#include "include/DescriptorSet.hpp"
+#include "include/RenderTarget.hpp"
+
 
 #include "libUtils/include/MacroGlobal.hpp"
 
@@ -68,9 +71,13 @@ private:
 
     SwapChainData m_swapchain;
 
-    VkRenderPass renderPass;
+    VkRenderPass SkBx_renderpass;
+    std::vector<VkFramebuffer> swapChainFramebuffers;
+
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
+
+    VkDescriptorSetLayout CameraUBOLayout; //TODO: edit ubo remove model matrix
 
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
@@ -110,7 +117,81 @@ private:
 
         m_swapchain = createSwapChain(window, m_devh, m_is.surface, swapChainWantedParam);
 
+        createRenderPass();
+
+        CameraUBOLayout = createDescriptorSetLayout(m_devh.device);
+
+        createSWPCHNFrameBuffer();
+
         commandPool = createCommandPool(m_devh, m_is.surface);
+
+    }
+
+    void createRenderPass()
+    {
+        VkAttachmentDescription colorAttachmentSKBX{};
+        colorAttachmentSKBX.format = m_swapchain.param.imageFormat.format;
+        colorAttachmentSKBX.samples = VK_SAMPLE_COUNT_1_BIT;
+        colorAttachmentSKBX.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachmentSKBX.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachmentSKBX.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachmentSKBX.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachmentSKBX.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colorAttachmentSKBX.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+        VkAttachmentReference colorAttachmentRef{};
+        colorAttachmentRef.attachment = 0;
+        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkSubpassDescription subpass{};
+        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpass.colorAttachmentCount = 1;
+        subpass.pColorAttachments = &colorAttachmentRef;
+
+        VkSubpassDependency dependency{};
+        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependency.dstSubpass = 0;
+        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.srcAccessMask = 0;
+        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+        VkRenderPassCreateInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderPassInfo.attachmentCount = 1;
+        renderPassInfo.pAttachments = &colorAttachmentSKBX;
+        renderPassInfo.subpassCount = 1;
+        renderPassInfo.pSubpasses = &subpass;
+        renderPassInfo.dependencyCount = 1;
+        renderPassInfo.pDependencies = &dependency;
+
+        if (vkCreateRenderPass(m_devh.device, &renderPassInfo, nullptr, &SkBx_renderpass) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create render pass!");
+        }
+    }
+
+    void createSWPCHNFrameBuffer()
+    {
+        swapChainFramebuffers.resize( m_swapchain.ImageViews.size());
+
+        for (size_t i = 0; i < m_swapchain.ImageViews.size(); i++) {
+            VkImageView attachments[] = {
+                m_swapchain.ImageViews[i]
+            };
+
+            VkFramebufferCreateInfo framebufferInfo{};
+            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferInfo.renderPass = SkBx_renderpass;
+            framebufferInfo.attachmentCount = 1;
+            framebufferInfo.pAttachments = attachments;
+            framebufferInfo.width = m_swapchain.param.extent.width;
+            framebufferInfo.height = m_swapchain.param.extent.height;
+            framebufferInfo.layers = 1;
+
+            if (vkCreateFramebuffer(m_devh.device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+                throw std::runtime_error("failed to create framebuffer!");
+            }
+        }
     }
 
     void mainLoop() {

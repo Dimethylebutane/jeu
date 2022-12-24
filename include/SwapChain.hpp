@@ -23,9 +23,6 @@ struct SwapChainData
     std::vector<VkImage> Images;
     std::vector<VkImageView> ImageViews;
     std::vector<VkFramebuffer> Framebuffers;
-
-    /*std::vector<VkSemaphore> imageAvailableSemaphores;
-    std::vector<VkSemaphore> renderFinishedSemaphores;*/
 };
 
 struct SwapChainSupportDetails {
