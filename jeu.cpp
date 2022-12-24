@@ -77,7 +77,10 @@ private:
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
 
-    VkDescriptorSetLayout CameraUBOLayout; //TODO: edit ubo remove model matrix
+    VkDescriptorSetLayout CamDescLayout; //TODO: edit ubo remove model matrix
+    UBO_inst CamUBO_inst;
+    VkDescriptorPool CamDescPool;
+    std::vector<VkDescriptorSet> CamDescSet;
 
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
@@ -119,11 +122,17 @@ private:
 
         createRenderPass();
 
-        CameraUBOLayout = createDescriptorSetLayout(m_devh.device);
+        CamDescLayout = createDescriptorSetLayout(m_devh.device);
 
         createSWPCHNFrameBuffer();
 
         commandPool = createCommandPool(m_devh, m_is.surface);
+
+        CamUBO_inst = createUBO<CamUBObj>(m_devh);
+
+        CamDescPool = createDescriptorPool(m_devh.device);
+
+        CamDescSet = createDescriptorSets(CamDescLayout, CamDescPool, m_devh.device, CamUBO_inst);
 
     }
 
@@ -207,18 +216,21 @@ private:
         
         cleanUpSwapChain(m_swapchain, m_devh.device);
 
-        vkDestroyCommandPool(m_devh.device, commandPool, nullptr);
+        //vkDestroyPipeline(m_devh.device, graphicsPipeline, nullptr);
+        //vkDestroyPipelineLayout(m_devh.device, pipelineLayout, nullptr);
 
-        vkDestroyPipeline(m_devh.device, graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(m_devh.device, pipelineLayout, nullptr);
+        vkDestroyRenderPass(m_devh.device, SkBx_renderpass, nullptr);
 
-        vkDestroyRenderPass(m_devh.device, renderPass, nullptr);
+        destroyUBO(CamUBO_inst, m_devh.device);
 
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        vkDestroyDescriptorPool(m_devh.device, CamDescPool, nullptr);
+        vkDestroyDescriptorSetLayout(m_devh.device, CamDescLayout, nullptr);
+
+        /*for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(m_devh.device, renderFinishedSemaphores[i], nullptr);
             vkDestroySemaphore(m_devh.device, imageAvailableSemaphores[i], nullptr);
             vkDestroyFence(m_devh.device, inFlightFences[i], nullptr);
-        }
+        }*/
 
         vkDestroyCommandPool(m_devh.device, commandPool, nullptr);
 

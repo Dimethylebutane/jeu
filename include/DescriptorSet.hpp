@@ -70,7 +70,7 @@ _NODISCARD std::vector<VkDescriptorSet> createDescriptorSets(VkDescriptorSetLayo
         VkDescriptorBufferInfo bufferInfo{};
         bufferInfo.buffer = ubinst.uniformBuffers[i];
         bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(UniformBufferObject);
+        bufferInfo.range = sizeof(CamUBObj);
 
         VkWriteDescriptorSet descriptorWrite{};
         descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

@@ -6,7 +6,7 @@
 
 #include "AppHandler.hpp"
 
-struct UniformBufferObject {
+struct CamUBObj {
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
@@ -39,14 +39,11 @@ _NODISCARD UBO_inst createUBO(DeviceHandler devh)
     return r;
 }
 
+//free buffer and memory
 inline void destroyUBO(UBO_inst& ub, VkDevice device)
 {
     for (size_t i = 0; i < ub.uniformBuffers.size(); i++) {
         vkDestroyBuffer(device, ub.uniformBuffers[i], nullptr);
         vkFreeMemory(device, ub.uniformBuffersMemory[i], nullptr);
     }
-
-    ub.uniformBuffers.clear();
-    ub.uniformBuffersMapped.clear();
-    ub.uniformBuffersMemory.clear();
 }
