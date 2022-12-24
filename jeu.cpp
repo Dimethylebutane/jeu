@@ -136,6 +136,7 @@ private:
 
     }
 
+    //needToBedestroyed
     void createRenderPass()
     {
         VkAttachmentDescription colorAttachmentSKBX{};
@@ -179,6 +180,7 @@ private:
         }
     }
 
+    //needToBedestroyed
     void createSWPCHNFrameBuffer()
     {
         swapChainFramebuffers.resize( m_swapchain.ImageViews.size());
@@ -214,6 +216,10 @@ private:
 
     void cleanup() {
         
+        for (auto framebuffer : swapChainFramebuffers) {
+            vkDestroyFramebuffer(m_devh.device, framebuffer, nullptr);
+        }
+
         cleanUpSwapChain(m_swapchain, m_devh.device);
 
         //vkDestroyPipeline(m_devh.device, graphicsPipeline, nullptr);

@@ -31,6 +31,7 @@ struct SwapChainSupportDetails {
     std::vector<VkPresentModeKHR> presentModes;
 };
 
+//need to be cleanedUp
 SwapChainData createSwapChain(GLFWwindow*, DeviceHandler, VkSurfaceKHR, SwapChainParam);
 
 void cleanUpSwapChain(SwapChainData& sc, VkDevice device);

@@ -49,7 +49,7 @@ _NODISCARD VkDescriptorSetLayout createDescriptorSetLayout(VkDevice device) {
     return r;
 }
 
-//need to be freed
+//NO need to be freed (automaticaly freed when pool is destroy)
 _NODISCARD std::vector<VkDescriptorSet> createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool,
         VkDevice device, UBO_inst ubinst) {
     std::vector<VkDescriptorSet> descriptorSets;
