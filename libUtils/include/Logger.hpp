@@ -34,7 +34,7 @@ public:
 	{
 		const SpinLockMTGuard locker(lock);
 
-		logStream << "log :   " << message << "\n";
+		logStream << message << "\n";
 	}
 
 	template <>
@@ -42,7 +42,7 @@ public:
 	{
 		const SpinLockMTGuard locker(lock);
 
-		logStream << "log :   " << message.str() << "\n";
+		logStream << message.str() << "\n";
 
 		logStream.flush();
 	}

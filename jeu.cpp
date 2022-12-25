@@ -266,7 +266,7 @@ private:
 
         cleanUpSwapChain(m_swapchain, m_devh.device);
 
-        createSwapChain(window, m_devh, m_is.surface, swapChainWantedParam);
+        m_swapchain = createSwapChain(window, m_devh, m_is.surface, swapChainWantedParam);
 
         //createFramebuffers();
     }
