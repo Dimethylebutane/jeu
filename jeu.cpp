@@ -13,7 +13,6 @@
 
 //#include <iostream>
 //#include <fstream>
-//#include <stdexcept>
 //#include <algorithm>
 //#include <vector>
 //#include <cstring>
@@ -32,8 +31,6 @@
 #include "include/CommandPool.hpp"
 #include "include/DescriptorSet.hpp"
 #include "include/Camera.hpp"
-
-
 
 #include "libUtils/include/MacroGlobal.hpp"
 
@@ -450,7 +447,7 @@ int main() {
 
     LOG(RESOURCES_PATH)
 
-    //app.run();
+    app.run();
     PAUSE;
 
     return EXIT_SUCCESS;
