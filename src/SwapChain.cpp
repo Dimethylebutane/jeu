@@ -12,14 +12,16 @@ SwapChainParam chooseParam(SwapChainParam wanted, SwapChainSupportDetails availa
     r.presentMode = VK_PRESENT_MODE_FIFO_KHR;
 
     for (const auto& availableFormat : availables.formats) {
-        if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+        //if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+        if (availableFormat.format == wanted.imageFormat.format && availableFormat.colorSpace == wanted.imageFormat.colorSpace) {
             r.imageFormat = availableFormat;
             break;
         }
     }
 
     for (const auto& availablePresentMode : availables.presentModes) {
-        if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+        //if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+        if (availablePresentMode == wanted.presentMode) {
             r.presentMode = availablePresentMode;
             break;
         }
@@ -95,6 +97,8 @@ _NODISCARD SwapChainData createSwapChain(GLFWwindow* window, DeviceHandler devh,
     SwapChainSupportDetails swapChainSupport = querySwapChainSupport(devh.physicalDevice, surface);
 
     param = chooseParam(param, swapChainSupport);
+
+    data.param = param;
 
     uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
     if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {

@@ -10,11 +10,11 @@
 #include "AppHandler.hpp"
 #include "../Settings.hpp"
 
-struct CamUBObj {
+/*struct CamUBObj {
     alignas(16) glm::mat4 model;
     alignas(16) glm::mat4 view;
     alignas(16) glm::mat4 proj;
-};
+};*/
 
 struct UBO_buffmem {
     std::array<VkBuffer, MAX_FRAMES_IN_FLIGHT> uniformBuffers;

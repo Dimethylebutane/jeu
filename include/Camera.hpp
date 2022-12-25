@@ -37,7 +37,7 @@ public:
 	void init()
 	{
 		m_camBuffMem = createUBO<CamUBO>(CameraDevh);
-		m_descrptrSet = createDescriptorSets(CameraDescriptorSetLayout, CameraDescriptorPool, CameraDevh.device, m_camBuffMem);
+		m_descrptrSet = createDescriptorSets<CamUBO>(CameraDescriptorSetLayout, CameraDescriptorPool, CameraDevh.device, m_camBuffMem);
 	}
 
 	void clean()
@@ -51,7 +51,7 @@ public:
 	static void InitCamerasClass(DeviceHandler devh)
 	{
 		CameraDevh = devh;
-		CameraDescriptorPool = createDescriptorPool(CameraDevh.device);
+		CameraDescriptorPool = createDescriptorPool(CameraDevh.device, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
 		CameraDescriptorSetLayout = createDescriptorSetLayout(CameraDevh.device);
 	}
 
