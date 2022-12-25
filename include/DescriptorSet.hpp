@@ -1,7 +1,7 @@
 #pragma once
 #include "vulkan/vulkan.h"
 
-#include <vector>
+#include <array>
 
 #include "../Settings.hpp" //MAX_FRAME_IN_FLIGHT
 
@@ -27,15 +27,18 @@ _NODISCARD VkDescriptorPool createDescriptorPool(VkDevice device) {
 }
 
 //need to be destroy
-_NODISCARD VkDescriptorSetLayout createDescriptorSetLayout(VkDevice device) {
+_NODISCARD VkDescriptorSetLayout createDescriptorSetLayout(VkDevice device,
+        VkDescriptorType type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+        VkShaderStageFlags stage = VK_SHADER_STAGE_VERTEX_BIT)
+{
     VkDescriptorSetLayout r{};
 
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
     uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uboLayoutBinding.descriptorType = type;
     uboLayoutBinding.pImmutableSamplers = nullptr;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    uboLayoutBinding.stageFlags = stage;
 
     VkDescriptorSetLayoutCreateInfo layoutInfo{};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -50,18 +53,22 @@ _NODISCARD VkDescriptorSetLayout createDescriptorSetLayout(VkDevice device) {
 }
 
 //NO need to be freed (automaticaly freed when pool is destroy)
-_NODISCARD std::vector<VkDescriptorSet> createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool,
-        VkDevice device, UBO_inst ubinst) {
-    std::vector<VkDescriptorSet> descriptorSets;
+_NODISCARD std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool,
+        VkDevice device, UBO_buffmem ubinst) {
+    std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> descriptorSets;
 
-    std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
+    std::array<VkDescriptorSetLayout, MAX_FRAMES_IN_FLIGHT> layouts{};
+        //fill array
+    for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    { layouts[i] = descriptorSetLayout; }
+
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = descriptorPool;
     allocInfo.descriptorSetCount = static_cast<uint32_t>(ubinst.uniformBuffers.size());
     allocInfo.pSetLayouts = layouts.data();
 
-    descriptorSets.resize(ubinst.uniformBuffers.size());
+    
     if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate descriptor sets!");
     }

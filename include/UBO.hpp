@@ -12,7 +12,7 @@ struct CamUBObj {
     alignas(16) glm::mat4 proj;
 };
 
-struct UBO_inst {
+struct UBO_buffmem {
     std::vector<VkBuffer> uniformBuffers;
     std::vector<VkDeviceMemory> uniformBuffersMemory;
     std::vector<void*> uniformBuffersMapped;
@@ -20,9 +20,9 @@ struct UBO_inst {
 
 //TODO: size of vector -> 1 per frame -> global stuff? how to cleanly propagate this info
 template<class UBOClass>
-_NODISCARD UBO_inst createUBO(DeviceHandler devh)
+_NODISCARD UBO_buffmem createUBO(DeviceHandler devh)
 {
-    UBO_inst r{};
+    UBO_buffmem r{};
 
     VkDeviceSize bufferSize = sizeof(UBOClass);
 
@@ -40,7 +40,7 @@ _NODISCARD UBO_inst createUBO(DeviceHandler devh)
 }
 
 //free buffer and memory
-inline void destroyUBO(UBO_inst& ub, VkDevice device)
+inline void destroyUBO(UBO_buffmem& ub, VkDevice device)
 {
     for (size_t i = 0; i < ub.uniformBuffers.size(); i++) {
         vkDestroyBuffer(device, ub.uniformBuffers[i], nullptr);

@@ -31,7 +31,8 @@
 #include "include/Model.hpp"
 #include "include/CommandPool.hpp"
 #include "include/DescriptorSet.hpp"
-#include "include/RenderTarget.hpp"
+#include "include/Camera.hpp"
+
 
 
 #include "libUtils/include/MacroGlobal.hpp"
@@ -77,10 +78,7 @@ private:
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
 
-    VkDescriptorSetLayout CamDescLayout; //TODO: edit ubo remove model matrix
-    UBO_inst CamUBO_inst;
-    VkDescriptorPool CamDescPool;
-    std::vector<VkDescriptorSet> CamDescSet;
+    Camera m_defaultCam;
 
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
@@ -120,19 +118,19 @@ private:
 
         m_swapchain = createSwapChain(window, m_devh, m_is.surface, swapChainWantedParam);
 
-        createRenderPass();
+#ifdef CAMERA
+        Camera::InitCamerasClass(m_devh);
+#endif // CAMERA
 
-        CamDescLayout = createDescriptorSetLayout(m_devh.device);
+        createRenderPass();
 
         createSWPCHNFrameBuffer();
 
         commandPool = createCommandPool(m_devh, m_is.surface);
 
-        CamUBO_inst = createUBO<CamUBObj>(m_devh);
+        m_defaultCam.init();
 
-        CamDescPool = createDescriptorPool(m_devh.device);
-
-        CamDescSet = createDescriptorSets(CamDescLayout, CamDescPool, m_devh.device, CamUBO_inst);
+        //TODO: model + shader + pipeline
 
     }
 
@@ -227,10 +225,11 @@ private:
 
         vkDestroyRenderPass(m_devh.device, SkBx_renderpass, nullptr);
 
-        destroyUBO(CamUBO_inst, m_devh.device);
 
-        vkDestroyDescriptorPool(m_devh.device, CamDescPool, nullptr);
-        vkDestroyDescriptorSetLayout(m_devh.device, CamDescLayout, nullptr);
+        m_defaultCam.clean();
+
+        //vkDestroyDescriptorPool(m_devh.device, CamDescPool, nullptr);
+        //vkDestroyDescriptorSetLayout(m_devh.device, CamDescLayout, nullptr);
 
         /*for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(m_devh.device, renderFinishedSemaphores[i], nullptr);
@@ -239,6 +238,10 @@ private:
         }*/
 
         vkDestroyCommandPool(m_devh.device, commandPool, nullptr);
+
+#ifdef CAMERA
+        Camera::CleanCameraClass();
+#endif // CAMERA
 
         vkDestroyDevice(m_devh.device, nullptr);
 
