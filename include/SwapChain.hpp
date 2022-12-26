@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 
 #include <vector>
+#include <array>
 
 #include "AppHandler.hpp"
 
@@ -23,6 +24,8 @@ struct SwapChainData
     std::vector<VkImage> Images;
     std::vector<VkImageView> ImageViews;
     std::vector<VkFramebuffer> Framebuffers;
+
+    std::vector<VkFence> fences;
 };
 
 struct SwapChainSupportDetails {
@@ -34,6 +37,6 @@ struct SwapChainSupportDetails {
 //need to be cleanedUp
 SwapChainData createSwapChain(GLFWwindow*, DeviceHandler, VkSurfaceKHR, SwapChainParam);
 
-void cleanUpSwapChain(SwapChainData& sc, VkDevice device);
+void cleanUpSwapChain(SwapChainData sc, const VkDevice device);
 
 SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);

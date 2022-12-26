@@ -1,10 +1,8 @@
 #include "../include/Model.hpp"
 
-Model createModel(std::vector<Vertex> vertices, std::vector<uint16_t> indices,
+void Model::create(std::vector<Vertex> vertices, std::vector<uint16_t> indices,
     const DeviceHandler devh, const VkQueue trsfrtQueue, const VkCommandPool commandPool)
 {
-    Model r{ };
-
     //vertex
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
@@ -20,9 +18,9 @@ Model createModel(std::vector<Vertex> vertices, std::vector<uint16_t> indices,
     vkUnmapMemory(devh.device, stagingBufferMemory);
 
     createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, r.vertexBuffer, r.vertexBufferMemory, devh);
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory, devh);
 
-    copyBuffer(stagingBuffer, r.vertexBuffer, bufferSize, devh.device, trsfrtQueue, commandPool);
+    copyBuffer(stagingBuffer, vertexBuffer, bufferSize, devh.device, trsfrtQueue, commandPool);
 
     vkDestroyBuffer(devh.device, stagingBuffer, nullptr);
     vkFreeMemory(devh.device, stagingBufferMemory, nullptr);
@@ -39,21 +37,20 @@ Model createModel(std::vector<Vertex> vertices, std::vector<uint16_t> indices,
     vkUnmapMemory(devh.device, stagingBufferMemory);
 
     createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-        r.indexBuffer, r.indexBufferMemory, devh);
+        indexBuffer, indexBufferMemory, devh);
 
-    copyBuffer(stagingBuffer, r.indexBuffer, bufferSize, devh.device, trsfrtQueue, commandPool);
+    copyBuffer(stagingBuffer, indexBuffer, bufferSize, devh.device, trsfrtQueue, commandPool);
 
     vkDestroyBuffer(devh.device, stagingBuffer, nullptr);
     vkFreeMemory(devh.device, stagingBufferMemory, nullptr);
 
-    return r;
 }
 
-void destroyModel(Model model, const VkDevice dev)
+void Model::destroy(const VkDevice dev)
 {
-    vkDestroyBuffer(dev, model.indexBuffer, nullptr);
-    vkDestroyBuffer(dev, model.vertexBuffer, nullptr);
+    vkDestroyBuffer(dev, indexBuffer, nullptr);
+    vkDestroyBuffer(dev, vertexBuffer, nullptr);
 
-    vkFreeMemory(dev, model.indexBufferMemory, nullptr);
-    vkFreeMemory(dev, model.vertexBufferMemory, nullptr);
+    vkFreeMemory(dev, indexBufferMemory, nullptr);
+    vkFreeMemory(dev, vertexBufferMemory, nullptr);
 }

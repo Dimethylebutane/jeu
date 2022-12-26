@@ -10,16 +10,20 @@
 #include "AppHandler.hpp"
 #include "../Settings.hpp"
 
-/*struct CamUBObj {
-    alignas(16) glm::mat4 model;
-    alignas(16) glm::mat4 view;
-    alignas(16) glm::mat4 proj;
-};*/
-
 struct UBO_buffmem {
     std::array<VkBuffer, MAX_FRAMES_IN_FLIGHT> uniformBuffers;
     std::array<VkDeviceMemory, MAX_FRAMES_IN_FLIGHT> uniformBuffersMemory;
     std::array<void*, MAX_FRAMES_IN_FLIGHT> uniformBuffersMapped;
+};
+
+template<unsigned char size>
+struct UBOTEST
+{
+    void* pData;
+
+    constexpr VkBuffer* uniformBuffers = pData;
+    constexpr VkDeviceMemory* uniformBuffersMemory = pData + size * sizeof(VkBuffer);
+    constexpr void* uniformBuffersMapped = pData + size * (sizeof(VkBuffer) + sizeof(VkDeviceMemory));
 };
 
 template<class UBOClass>

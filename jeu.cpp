@@ -20,6 +20,7 @@
 //#include <cstdint>
 //#include <limits>
 //#include <optional>
+#include <stdexcept>
 #include <set>
 
 #include "include/SwapChain.hpp"
@@ -31,6 +32,7 @@
 #include "include/CommandPool.hpp"
 #include "include/DescriptorSet.hpp"
 #include "include/Camera.hpp"
+#include "include/SkyBox.hpp"
 
 #include "libUtils/include/MacroGlobal.hpp"
 
@@ -69,21 +71,16 @@ private:
 
     SwapChainData m_swapchain;
 
-    VkRenderPass SkBx_renderpass;
     std::vector<VkFramebuffer> swapChainFramebuffers;
 
-    VkPipelineLayout pipelineLayout;
-    VkPipeline graphicsPipeline;
-
     Camera m_defaultCam;
+    SkBx m_defaultSkBx;
 
     VkCommandPool commandPool;
-    std::vector<VkCommandBuffer> commandBuffers;
+    std::array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT> SkBx_commandBuffers;
 
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
-    std::vector<VkFence> inFlightFences;
-    uint32_t currentFrame = 0;
 
     bool framebufferResized = false;
 
@@ -115,124 +112,127 @@ private:
 
         m_swapchain = createSwapChain(window, m_devh, m_is.surface, swapChainWantedParam);
 
+        createFirstSemaphore();
+
 #ifdef CAMERA
         Camera::InitCamerasClass(m_devh);
 #endif // CAMERA
 
-        createRenderPass();
-
-        createSWPCHNFrameBuffer();
-
         commandPool = createCommandPool(m_devh, m_is.surface);
 
+        SkBx::InitSkBxStruct(m_swapchain, m_queues.graphicsQueue, commandPool, m_devh);
+
         m_defaultCam.init();
+        m_defaultSkBx.init(m_defaultCam, m_swapchain, commandPool, m_devh.device);
 
         //TODO: model + shader + pipeline
 
     }
 
-    //needToBedestroyed
-    void createRenderPass()
-    {
-        VkAttachmentDescription colorAttachmentSKBX{};
-        colorAttachmentSKBX.format = m_swapchain.param.imageFormat.format;
-        colorAttachmentSKBX.samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachmentSKBX.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachmentSKBX.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        colorAttachmentSKBX.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachmentSKBX.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachmentSKBX.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachmentSKBX.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-        VkAttachmentReference colorAttachmentRef{};
-        colorAttachmentRef.attachment = 0;
-        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-        VkSubpassDescription subpass{};
-        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount = 1;
-        subpass.pColorAttachments = &colorAttachmentRef;
-
-        VkSubpassDependency dependency{};
-        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        dependency.dstSubpass = 0;
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.srcAccessMask = 0;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-        VkRenderPassCreateInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassInfo.attachmentCount = 1;
-        renderPassInfo.pAttachments = &colorAttachmentSKBX;
-        renderPassInfo.subpassCount = 1;
-        renderPassInfo.pSubpasses = &subpass;
-        renderPassInfo.dependencyCount = 1;
-        renderPassInfo.pDependencies = &dependency;
-
-        if (vkCreateRenderPass(m_devh.device, &renderPassInfo, nullptr, &SkBx_renderpass) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create render pass!");
-        }
-    }
-
-    //needToBedestroyed
-    void createSWPCHNFrameBuffer()
-    {
-        swapChainFramebuffers.resize( m_swapchain.ImageViews.size());
-
-        for (size_t i = 0; i < m_swapchain.ImageViews.size(); i++) {
-            VkImageView attachments[] = {
-                m_swapchain.ImageViews[i]
-            };
-
-            VkFramebufferCreateInfo framebufferInfo{};
-            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            framebufferInfo.renderPass = SkBx_renderpass;
-            framebufferInfo.attachmentCount = 1;
-            framebufferInfo.pAttachments = attachments;
-            framebufferInfo.width = m_swapchain.param.extent.width;
-            framebufferInfo.height = m_swapchain.param.extent.height;
-            framebufferInfo.layers = 1;
-
-            if (vkCreateFramebuffer(m_devh.device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
-                throw std::runtime_error("failed to create framebuffer!");
-            }
-        }
-    }
-
     void mainLoop() {
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
-            //drawFrame();
+            drawFrame();
         }
 
         vkDeviceWaitIdle(m_devh.device);
     }
 
+    uint32_t currentFrame = 0; // % max_frame_in_flight
+    void drawFrame()
+    {
+        vkWaitForFences(m_devh.device, 1, &(m_swapchain.fences[currentFrame]), VK_TRUE, UINT64_MAX);
+
+        uint32_t currentImageIndex = 0;
+        VkResult result = vkAcquireNextImageKHR(m_devh.device, m_swapchain.vkSwapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &currentImageIndex);
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+            recreateSwapChain();
+            return;
+        }
+        else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+            throw std::runtime_error("failed to acquire swap chain image!");
+        }
+
+        m_defaultCam.m_data.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        m_defaultCam.m_data.proj = glm::perspective(glm::radians(45.0f), m_swapchain.param.extent.width / (float)m_swapchain.param.extent.height, 0.1f, 10.0f);
+        m_defaultCam.m_data.proj[1][1] *= -1;
+
+        m_defaultCam.updateBuffer(currentImageIndex);
+        
+        vkResetFences(m_devh.device, 1, &(m_swapchain.fences[currentFrame]));
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+        VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
+        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = waitSemaphores;
+        submitInfo.pWaitDstStageMask = waitStages;
+
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &m_defaultSkBx.commandBuffers[currentImageIndex]; //one per image not frame
+
+        VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = signalSemaphores;
+
+        if (vkQueueSubmit(m_queues.graphicsQueue, 1, &submitInfo, (m_swapchain.fences[currentFrame])) != VK_SUCCESS) {
+            throw std::runtime_error("failed to submit draw command buffer!");
+        }
+
+        VkPresentInfoKHR presentInfo{};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = signalSemaphores;
+
+        VkSwapchainKHR swapChains[] = { m_swapchain.vkSwapChain };
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = swapChains;
+
+        presentInfo.pImageIndices = &currentImageIndex;
+
+        result = vkQueuePresentKHR(m_queues.presentQueue, &presentInfo);
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
+            framebufferResized = false;
+            recreateSwapChain();
+        }
+        else if (result != VK_SUCCESS) {
+            throw std::runtime_error("failed to present swap chain image!");
+        }
+
+        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+    }
+
     void cleanup() {
         
-        for (auto framebuffer : swapChainFramebuffers) {
+        for(auto s : imageAvailableSemaphores)
+            vkDestroySemaphore(m_devh.device, s, nullptr);
+        
+        for(auto s : renderFinishedSemaphores)
+            vkDestroySemaphore(m_devh.device, s, nullptr);
+
+        for (auto framebuffer : swapChainFramebuffers)
             vkDestroyFramebuffer(m_devh.device, framebuffer, nullptr);
-        }
 
         cleanUpSwapChain(m_swapchain, m_devh.device);
 
         //vkDestroyPipeline(m_devh.device, graphicsPipeline, nullptr);
         //vkDestroyPipelineLayout(m_devh.device, pipelineLayout, nullptr);
 
-        vkDestroyRenderPass(m_devh.device, SkBx_renderpass, nullptr);
-
-
+        m_defaultSkBx.free(commandPool, m_devh.device);
         m_defaultCam.clean();
-
-        //vkDestroyDescriptorPool(m_devh.device, CamDescPool, nullptr);
-        //vkDestroyDescriptorSetLayout(m_devh.device, CamDescLayout, nullptr);
 
         /*for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(m_devh.device, renderFinishedSemaphores[i], nullptr);
             vkDestroySemaphore(m_devh.device, imageAvailableSemaphores[i], nullptr);
             vkDestroyFence(m_devh.device, inFlightFences[i], nullptr);
         }*/
+
+        SkBx::CleanSkBxStruct(m_devh.device);
 
         vkDestroyCommandPool(m_devh.device, commandPool, nullptr);
 
@@ -389,6 +389,23 @@ private:
 
         vkGetDeviceQueue(m_devh.device, indices.graphicsFamily.value(), 0, &m_queues.graphicsQueue);
         vkGetDeviceQueue(m_devh.device, indices.presentFamily.value(), 0, &m_queues.presentQueue);
+    }
+
+    void createFirstSemaphore()
+    {
+        imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+
+        VkSemaphoreCreateInfo semaphoreInfo{};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            if (vkCreateSemaphore(m_devh.device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
+                vkCreateSemaphore(m_devh.device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS)
+            {
+                throw std::runtime_error("failed to create synchronization objects for a frame!");
+            }
+        }
     }
 
 #pragma region DeviceChoice

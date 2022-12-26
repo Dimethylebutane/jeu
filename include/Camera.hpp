@@ -17,14 +17,24 @@
 #include <array>
 
 //hight abstraction level of a camera object
-class Camera
+struct Camera
 {
-public:
 	struct CamUBO
 	{
 		alignas(16) glm::mat4 view;
 		alignas(16) glm::mat4 proj;
 	};
+
+
+	CamUBO m_data{};
+	UBO_buffmem m_camBuffMem{};
+
+	std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> m_descrptrSet;
+
+	//static stuff
+	static VkDescriptorPool CameraDescriptorPool;
+	static DeviceHandler CameraDevh;
+	static VkDescriptorSetLayout CameraDescriptorSetLayout;
 
 
 	Camera()
@@ -48,6 +58,11 @@ public:
 		vkFreeDescriptorSets(CameraDevh.device, CameraDescriptorPool, MAX_FRAMES_IN_FLIGHT, m_descrptrSet.data());
 	}
 
+	void updateBuffer(uint16_t imageIndex)
+	{
+		memcpy(m_camBuffMem.uniformBuffersMapped[imageIndex], &m_data, sizeof(m_data));
+	}
+
 	static void InitCamerasClass(DeviceHandler devh)
 	{
 		CameraDevh = devh;
@@ -60,17 +75,5 @@ public:
 		vkDestroyDescriptorPool(CameraDevh.device, CameraDescriptorPool, nullptr);
 		vkDestroyDescriptorSetLayout(CameraDevh.device, CameraDescriptorSetLayout, nullptr);
 	}
-
-protected:
-
-	CamUBO m_data{};
-	UBO_buffmem m_camBuffMem{};
-
-	std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> m_descrptrSet;
-
-	//static stuff
-	static VkDescriptorPool CameraDescriptorPool;
-	static DeviceHandler CameraDevh;
-	static VkDescriptorSetLayout CameraDescriptorSetLayout;
 };
 #endif

@@ -22,7 +22,7 @@ set(RESOURCESPATH "${PROJECT_BINARY_DIR}/Resources")
 add_compile_definitions(RESOURCES_PATH="${RESOURCESPATH}")
 
 # Add source to this project's executable.
-add_executable (${PROJECT_NAME} "jeu.cpp" "jeu.h" "src/SwapChain.cpp" "src/Model.cpp" "src/BuffersUtils.cpp" "src/QueueUtils.cpp" "src/Camera.cpp" "src/DescriptorSet.cpp")
+add_executable (${PROJECT_NAME} "jeu.cpp" "jeu.h" "src/SwapChain.cpp" "src/Model.cpp" "src/BuffersUtils.cpp" "src/QueueUtils.cpp" "src/Camera.cpp" "src/DescriptorSet.cpp" "src/SkyBox.cpp" "src/ShaderModulesUtils.cpp")
 
 #import vulkan
 find_package(Vulkan REQUIRED)

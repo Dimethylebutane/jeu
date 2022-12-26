@@ -2,6 +2,8 @@
 
 #include "../include/QueueUtils.hpp"
 
+#include "../Settings.hpp"
+
 #include <algorithm>
 #include <stdexcept>
 
@@ -100,7 +102,7 @@ _NODISCARD SwapChainData createSwapChain(GLFWwindow* window, DeviceHandler devh,
 
     data.param = param;
 
-    uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+    uint32_t imageCount = MAX_FRAMES_IN_FLIGHT; // /!\ not guaranted
     if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
         imageCount = swapChainSupport.capabilities.maxImageCount;
     }
@@ -143,20 +145,31 @@ _NODISCARD SwapChainData createSwapChain(GLFWwindow* window, DeviceHandler devh,
 
     createImageViews(devh.device, data);
 
+    data.fences.resize(MAX_FRAMES_IN_FLIGHT);
+
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        if (vkCreateFence(devh.device, &fenceInfo, nullptr, &data.fences[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create synchronization objects for a frame!");
+        }
+    }
+
     return data;
 }
 
-void cleanUpSwapChain(SwapChainData& sc, VkDevice device)
+void cleanUpSwapChain(SwapChainData sc, const VkDevice device)
 {
-    for (auto framebuffer : sc.Framebuffers) {
-        vkDestroyFramebuffer(device, framebuffer, nullptr);
-    }
+    for (auto f : sc.fences)
+        vkDestroyFence(device, f, nullptr);
 
-    for (auto imageView : sc.ImageViews) {
+    for (auto framebuffer : sc.Framebuffers)
+        vkDestroyFramebuffer(device, framebuffer, nullptr);
+    
+    for (auto imageView : sc.ImageViews)
         vkDestroyImageView(device, imageView, nullptr);
-    }
 
     vkDestroySwapchainKHR(device, sc.vkSwapChain, nullptr);
-
-    sc = SwapChainData{};
 }
