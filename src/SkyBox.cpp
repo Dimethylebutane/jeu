@@ -70,11 +70,11 @@ _NODISCARD std::vector<VkFramebuffer> createSWPCHNFrameBuffer(SwapChainData swap
 {
     std::vector<VkFramebuffer> swapChainFramebuffers;
 
-    swapChainFramebuffers.resize(swapchain.ImageViews.size());
+    swapChainFramebuffers.resize(swapchain.imageData.size());
 
-    for (size_t i = 0; i < swapchain.ImageViews.size(); i++) {
+    for (size_t i = 0; i < swapchain.imageData.size(); i++) {
         VkImageView attachments[] = {
-            swapchain.ImageViews[i]
+            swapchain.imageData[i].imageView
         };
 
         VkFramebufferCreateInfo framebufferInfo{};

@@ -1,7 +1,7 @@
 #pragma once
 #include "vulkan/vulkan.h"
 
-#include <array>
+#include <vector>
 #include <stdexcept>
 
 #include "../Settings.hpp" //MAX_FRAME_IN_FLIGHT
@@ -19,13 +19,17 @@ _NODISCARD VkDescriptorSetLayout createDescriptorSetLayout(VkDevice device,
 
 //NO need to be freed (automaticaly freed when pool is destroy)
 template<class UBOClass>
-_NODISCARD std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> createDescriptorSets(VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool,
-    VkDevice device, UBO_buffmem ubinst) {
-    std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> descriptorSets;
+_NODISCARD std::vector<VkDescriptorSet> createDescriptorSets(uint32_t numberOfFrame, VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool,
+    VkDevice device, UBO_buffmem ubinst)
+{
+    std::vector<VkDescriptorSet> descriptorSets;
+    descriptorSets.resize(numberOfFrame);
 
-    std::array<VkDescriptorSetLayout, MAX_FRAMES_IN_FLIGHT> layouts{};
+    std::vector<VkDescriptorSetLayout> layouts{};
+    layouts.resize(numberOfFrame);
+
     //fill array
-    for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    for (int i = 0; i < numberOfFrame; i++)
     {
         layouts[i] = descriptorSetLayout;
     }
@@ -33,7 +37,7 @@ _NODISCARD std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> createDescriptorSet
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = descriptorPool;
-    allocInfo.descriptorSetCount = static_cast<uint32_t>(ubinst.uniformBuffers.size());
+    allocInfo.descriptorSetCount = numberOfFrame;
     allocInfo.pSetLayouts = layouts.data();
 
 
@@ -41,9 +45,9 @@ _NODISCARD std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> createDescriptorSet
         throw std::runtime_error("failed to allocate descriptor sets!");
     }
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    for (size_t i = 0; i < numberOfFrame; i++) {
         VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = ubinst.uniformBuffers[i];
+        bufferInfo.buffer = ubinst.uniformBuffers()[i];
         bufferInfo.offset = 0;
         bufferInfo.range = sizeof(UBOClass);
 

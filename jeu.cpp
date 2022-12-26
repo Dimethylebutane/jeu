@@ -122,7 +122,7 @@ private:
 
         SkBx::InitSkBxStruct(m_swapchain, m_queues.graphicsQueue, commandPool, m_devh);
 
-        m_defaultCam.init();
+        m_defaultCam.init( static_cast<char>(m_swapchain.imageData.size()) );
         m_defaultSkBx.init(m_defaultCam, m_swapchain, commandPool, m_devh.device);
 
         //TODO: model + shader + pipeline

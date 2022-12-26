@@ -17,13 +17,18 @@ struct SwapChainParam
 
 struct SwapChainData
 {   
+    struct ImageImageView
+    {
+        VkImage image;
+        VkImageView imageView;
+        //VkFramebuffer frameBuffer;
+    };
+
     VkSwapchainKHR vkSwapChain;
 
     SwapChainParam param;
 
-    std::vector<VkImage> Images;
-    std::vector<VkImageView> ImageViews;
-    std::vector<VkFramebuffer> Framebuffers;
+    std::vector<ImageImageView> imageData;
 
     std::vector<VkFence> fences;
 };

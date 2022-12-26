@@ -15,6 +15,9 @@
 //TODO: pb renderpass depend on image format -> skbx = buffer and creation of render pass and pipe by register skbx to image?
 struct SkBx
 {
+	//those 2 data are not accessed at same time
+	//frame buffer is used only when creating and destroying SkBx
+
 	std::vector<VkCommandBuffer> commandBuffers;
 
 	std::vector<VkFramebuffer> framebuffers;

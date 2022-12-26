@@ -66,12 +66,10 @@ SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurface
 
 void createImageViews(VkDevice device, SwapChainData& data)
 {
-    data.ImageViews.resize(data.Images.size());
-
-    for (size_t i = 0; i < data.Images.size(); i++) {
+    for (size_t i = 0; i < data.imageData.size(); i++) {
         VkImageViewCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        createInfo.image = data.Images[i];
+        createInfo.image = data.imageData[i].image;
         createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
         createInfo.format = data.param.imageFormat.format;
         createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -84,7 +82,7 @@ void createImageViews(VkDevice device, SwapChainData& data)
         createInfo.subresourceRange.baseArrayLayer = 0;
         createInfo.subresourceRange.layerCount = 1;
 
-        if (vkCreateImageView(device, &createInfo, nullptr, &data.ImageViews[i]) != VK_SUCCESS) {
+        if (vkCreateImageView(device, &createInfo, nullptr, &data.imageData[i].imageView) != VK_SUCCESS) {
             throw std::runtime_error("failed to create image views!");
         }
     }
@@ -140,11 +138,22 @@ _NODISCARD SwapChainData createSwapChain(GLFWwindow* window, DeviceHandler devh,
     }
 
     vkGetSwapchainImagesKHR(devh.device, data.vkSwapChain, &imageCount, nullptr);
-    data.Images.resize(imageCount);
-    vkGetSwapchainImagesKHR(devh.device, data.vkSwapChain, &imageCount, data.Images.data());
+
+    data.imageData.resize(imageCount);
+
+    { //no need to images vector after this block
+        std::vector<VkImage> images;
+        images.resize(imageCount);
+
+        vkGetSwapchainImagesKHR(devh.device, data.vkSwapChain, &imageCount, images.data());
+
+        for (int i = 0; i < imageCount; i++)
+            data.imageData[i].image = images[i];
+    }
 
     createImageViews(devh.device, data);
 
+    //FENCE
     data.fences.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkFenceCreateInfo fenceInfo{};
@@ -165,11 +174,10 @@ void cleanUpSwapChain(SwapChainData sc, const VkDevice device)
     for (auto f : sc.fences)
         vkDestroyFence(device, f, nullptr);
 
-    for (auto framebuffer : sc.Framebuffers)
-        vkDestroyFramebuffer(device, framebuffer, nullptr);
-    
-    for (auto imageView : sc.ImageViews)
-        vkDestroyImageView(device, imageView, nullptr);
+    for (auto iData : sc.imageData)
+    {
+        vkDestroyImageView(device, iData.imageView, nullptr);
+    }
 
     vkDestroySwapchainKHR(device, sc.vkSwapChain, nullptr);
 }

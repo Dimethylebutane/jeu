@@ -27,9 +27,10 @@ struct Camera
 
 
 	CamUBO m_data{};
-	UBO_buffmem m_camBuffMem{};
+	UBO_buffmem m_camBuffMem;
 
-	std::array<VkDescriptorSet, MAX_FRAMES_IN_FLIGHT> m_descrptrSet;
+
+	std::vector<VkDescriptorSet> m_descrptrSet;
 
 	//static stuff
 	static VkDescriptorPool CameraDescriptorPool;
@@ -37,17 +38,10 @@ struct Camera
 	static VkDescriptorSetLayout CameraDescriptorSetLayout;
 
 
-	Camera()
-	{}
-
-	~Camera()
-	{}
-
-
-	void init()
+	void init(const char numberOfFrame)
 	{
-		m_camBuffMem = createUBO<CamUBO>(CameraDevh);
-		m_descrptrSet = createDescriptorSets<CamUBO>(CameraDescriptorSetLayout, CameraDescriptorPool, CameraDevh.device, m_camBuffMem);
+		m_camBuffMem = createUBO<CamUBO>(numberOfFrame, CameraDevh);
+		m_descrptrSet = createDescriptorSets<CamUBO>(numberOfFrame, CameraDescriptorSetLayout, CameraDescriptorPool, CameraDevh.device, m_camBuffMem);
 	}
 
 	void clean()
@@ -60,7 +54,7 @@ struct Camera
 
 	void updateBuffer(uint16_t imageIndex)
 	{
-		memcpy(m_camBuffMem.uniformBuffersMapped[imageIndex], &m_data, sizeof(m_data));
+		memcpy(m_camBuffMem.uniformBuffersMapped()[imageIndex], &m_data, sizeof(m_data));
 	}
 
 	static void InitCamerasClass(DeviceHandler devh)
