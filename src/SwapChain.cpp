@@ -33,8 +33,8 @@ SwapChainParam chooseParam(SwapChainParam wanted, SwapChainSupportDetails availa
         r.extent = availables.capabilities.currentExtent;
     }
     else {
-        wanted.extent.width = std::clamp(wanted.extent.width, availables.capabilities.minImageExtent.width, availables.capabilities.maxImageExtent.width);
-        wanted.extent.height = std::clamp(wanted.extent.height, availables.capabilities.minImageExtent.height, availables.capabilities.maxImageExtent.height);
+        r.extent.width = std::clamp(wanted.extent.width, availables.capabilities.minImageExtent.width, availables.capabilities.maxImageExtent.width);
+        r.extent.height = std::clamp(wanted.extent.height, availables.capabilities.minImageExtent.height, availables.capabilities.maxImageExtent.height);
     }
 
     return r;
@@ -88,19 +88,9 @@ void createImageViews(VkDevice device, SwapChain& data)
     }
 }
 
-_NODISCARD SwapChain createSwapChain(GLFWwindow* window, DeviceHandler devh, VkSurfaceKHR surface, SwapChainParam param)
+void createImageImageView(SwapChain& swapchain, SwapChainSupportDetails swapChainSupport, const VkSurfaceKHR& surface, DeviceHandler& devh)
 {
-    //initialize blank data to return
-    SwapChain data{};
-
-    //check capabilities of swapchain
-    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(devh.physicalDevice, surface);
-
-    param = chooseParam(param, swapChainSupport);
-
-    data.param = param;
-
-    uint32_t imageCount = MAX_FRAMES_IN_FLIGHT; // /!\ not guaranted
+    uint32_t imageCount = MAX_FRAMES_IN_FLIGHT; // /!\ not guaranted, we want this
     if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
         imageCount = swapChainSupport.capabilities.maxImageCount;
     }
@@ -110,9 +100,9 @@ _NODISCARD SwapChain createSwapChain(GLFWwindow* window, DeviceHandler devh, VkS
     createInfo.surface = surface;
 
     createInfo.minImageCount = imageCount;
-    createInfo.imageFormat = param.imageFormat.format;
-    createInfo.imageColorSpace = param.imageFormat.colorSpace;
-    createInfo.imageExtent = param.extent;
+    createInfo.imageFormat = swapchain.param.imageFormat.format;
+    createInfo.imageColorSpace = swapchain.param.imageFormat.colorSpace;
+    createInfo.imageExtent = swapchain.param.extent;
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
@@ -130,54 +120,84 @@ _NODISCARD SwapChain createSwapChain(GLFWwindow* window, DeviceHandler devh, VkS
 
     createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    createInfo.presentMode = param.presentMode;
+    createInfo.presentMode = swapchain.param.presentMode;
     createInfo.clipped = VK_TRUE;
 
-    if (vkCreateSwapchainKHR(devh.device, &createInfo, nullptr, &data.vkSwapChain) != VK_SUCCESS) {
+    if (vkCreateSwapchainKHR(devh.device, &createInfo, nullptr, &swapchain.vkSwapChain) != VK_SUCCESS) {
         throw std::runtime_error("failed to create swap chain!");
     }
 
-    vkGetSwapchainImagesKHR(devh.device, data.vkSwapChain, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(devh.device, swapchain.vkSwapChain, &imageCount, nullptr);
 
-    data.imageData.resize(imageCount);
+    swapchain.imageData.resize(imageCount);
 
     { //no need to images vector after this block
         std::vector<VkImage> images;
         images.resize(imageCount);
 
-        vkGetSwapchainImagesKHR(devh.device, data.vkSwapChain, &imageCount, images.data());
+        vkGetSwapchainImagesKHR(devh.device, swapchain.vkSwapChain, &imageCount, images.data());
 
         for (int i = 0; i < imageCount; i++)
-            data.imageData[i].image = images[i];
+            swapchain.imageData[i].image = images[i];
     }
 
-    createImageViews(devh.device, data);
+    createImageViews(devh.device, swapchain);
+}
+
+void SwapChain::init(GLFWwindow* window, DeviceHandler devh, VkSurfaceKHR surface, SwapChainParam Param)
+{
+    //check capabilities of swapchain
+    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(devh.physicalDevice, surface);
+
+    Param = chooseParam(Param, swapChainSupport);
+
+    this->param = Param;
+
+    createImageImageView(*this, swapChainSupport, surface, devh);
 
     //FENCE
-    data.fences.resize(MAX_FRAMES_IN_FLIGHT);
+    fences.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkFenceCreateInfo fenceInfo{};
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        if (vkCreateFence(devh.device, &fenceInfo, nullptr, &data.fences[i]) != VK_SUCCESS) {
+        if (vkCreateFence(devh.device, &fenceInfo, nullptr, &fences[i]) != VK_SUCCESS) {
             throw std::runtime_error("failed to create synchronization objects for a frame!");
         }
     }
-
-    return data;
 }
 
-void cleanUpSwapChain(SwapChain sc, const VkDevice device)
+void SwapChain::cleanUp(const VkDevice device)
 {
-    for (auto f : sc.fences)
+    for (auto f : fences)
         vkDestroyFence(device, f, nullptr);
 
-    for (auto iData : sc.imageData)
+    for (auto iData : imageData)
     {
         vkDestroyImageView(device, iData.imageView, nullptr);
     }
 
-    vkDestroySwapchainKHR(device, sc.vkSwapChain, nullptr);
+    vkDestroySwapchainKHR(device, vkSwapChain, nullptr);
+}
+
+void SwapChain::recreate(GLFWwindow* window, DeviceHandler devh, VkSurfaceKHR surface, SwapChainParam Param)
+{
+    //free everything except fences
+    for (auto iData : imageData)
+    {
+        vkDestroyImageView(devh.device, iData.imageView, nullptr);
+    }
+
+    vkDestroySwapchainKHR(devh.device, vkSwapChain, nullptr);
+
+    //recreate stuff
+    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(devh.physicalDevice, surface);
+
+    Param = chooseParam(Param, swapChainSupport);
+
+    this->param = Param;
+
+    createImageImageView(*this, swapChainSupport, surface, devh);
 }

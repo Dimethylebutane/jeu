@@ -66,7 +66,7 @@ private:
         pickPhysicalDevice();
         createLogicalDevice();
 
-        m_swapchain = createSwapChain(window, m_devh, m_is.surface, swapChainWantedParam);
+        m_swapchain.init(window, m_devh, m_is.surface, swapChainWantedParam);
 
         createFirstSemaphore();
 
@@ -177,7 +177,7 @@ private:
         for (auto framebuffer : swapChainFramebuffers)
             vkDestroyFramebuffer(m_devh.device, framebuffer, nullptr);
 
-        cleanUpSwapChain(m_swapchain, m_devh.device);
+        m_swapchain.cleanUp(m_devh.device);
 
         //vkDestroyPipeline(m_devh.device, graphicsPipeline, nullptr);
         //vkDestroyPipelineLayout(m_devh.device, pipelineLayout, nullptr);
@@ -223,9 +223,7 @@ private:
 
         vkDeviceWaitIdle(m_devh.device);
 
-        cleanUpSwapChain(m_swapchain, m_devh.device);
-
-        m_swapchain = createSwapChain(window, m_devh, m_is.surface, swapChainWantedParam);
+        m_swapchain.recreate(window, m_devh, m_is.surface, swapChainWantedParam);
 
         m_defaultSkBx.recreate(m_swapchain, m_defaultCam, m_devh.device);
     }

@@ -22,7 +22,6 @@ struct SwapChain
     {
         VkImage image;
         VkImageView imageView;
-        //VkFramebuffer frameBuffer;
     };
 
     VkSwapchainKHR vkSwapChain;
@@ -45,6 +44,12 @@ struct SwapChain
 
         return result;
     }
+
+    void init(GLFWwindow*, DeviceHandler, VkSurfaceKHR, SwapChainParam);
+
+    void cleanUp(const VkDevice device);
+
+    void recreate(GLFWwindow*, DeviceHandler, VkSurfaceKHR, SwapChainParam);
 };
 
 struct SwapChainSupportDetails {
@@ -53,9 +58,5 @@ struct SwapChainSupportDetails {
     std::vector<VkPresentModeKHR> presentModes;
 };
 
-//need to be cleanedUp
-SwapChain createSwapChain(GLFWwindow*, DeviceHandler, VkSurfaceKHR, SwapChainParam);
-
-void cleanUpSwapChain(SwapChain sc, const VkDevice device);
 
 SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
