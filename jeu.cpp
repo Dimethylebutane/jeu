@@ -76,7 +76,7 @@ private:
 
         commandPool = createCommandPool(m_devh, m_is.surface);
 
-        SkBx::InitSkBxStruct(m_swapchain, m_queues.graphicsQueue, commandPool, m_devh);
+        SkBx::InitSkBxStruct(m_swapchain.param, m_queues.graphicsQueue, commandPool, m_devh);
 
         m_defaultCam.init( static_cast<char>(m_swapchain.imageData.size()) );
         m_defaultCam.m_data.proj = glm::perspective(glm::radians(45.0f), m_swapchain.param.extent.width / (float)m_swapchain.param.extent.height, 0.1f, 10.0f);
@@ -227,7 +227,7 @@ private:
 
         m_swapchain = createSwapChain(window, m_devh, m_is.surface, swapChainWantedParam);
 
-        //createFramebuffers();
+        m_defaultSkBx.recreate(m_swapchain, m_defaultCam, m_devh.device);
     }
 
     void createInstance() {

@@ -244,22 +244,8 @@ _NODISCARD VkPipeline createSKBXPipeline(VkPipelineLayout pipelineLayoutStatic, 
     return SkBx_pipeline;
 }
 
-_NODISCARD std::vector<VkCommandBuffer> createSkBxCommandBuffer(Camera& cam, Model mod, std::vector<VkFramebuffer> framebuffers, VkCommandPool commandPool, SwapChainParam scp, VkDevice device)
+void recordCommandBuffers(std::vector<VkCommandBuffer>& SkBx_commandBuffers, Camera& cam, std::vector<VkFramebuffer>& framebuffers, VkExtent2D ext, Model mod)
 {
-    std::vector<VkCommandBuffer> SkBx_commandBuffers;
-    SkBx_commandBuffers.resize(framebuffers.size());
-
-    //TODO: secondary command buffer
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = commandPool;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = MAX_FRAMES_IN_FLIGHT;
-
-    if (vkAllocateCommandBuffers(device, &allocInfo, SkBx_commandBuffers.data()) != VK_SUCCESS) {
-        throw std::runtime_error("failed to allocate command buffers!");
-    }
-
     int imageIndex = 0;
     for (auto commandBuffer : SkBx_commandBuffers)
     {
@@ -275,7 +261,7 @@ _NODISCARD std::vector<VkCommandBuffer> createSkBxCommandBuffer(Camera& cam, Mod
         renderPassInfo.renderPass = SkBx::renderpass;
         renderPassInfo.framebuffer = framebuffers[imageIndex];
         renderPassInfo.renderArea.offset = { 0, 0 };
-        renderPassInfo.renderArea.extent = scp.extent;
+        renderPassInfo.renderArea.extent = ext;
         renderPassInfo.clearValueCount = 0;
 
         vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -285,15 +271,15 @@ _NODISCARD std::vector<VkCommandBuffer> createSkBxCommandBuffer(Camera& cam, Mod
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float)scp.extent.width;
-        viewport.height = (float)scp.extent.height;
+        viewport.width = (float)ext.width;
+        viewport.height = (float)ext.height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
         vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
         VkRect2D scissor{};
         scissor.offset = { 0, 0 };
-        scissor.extent = scp.extent;
+        scissor.extent = ext;
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
         VkBuffer vertexBuffers[] = { mod.vertexBuffer };
@@ -313,13 +299,34 @@ _NODISCARD std::vector<VkCommandBuffer> createSkBxCommandBuffer(Camera& cam, Mod
         }
         imageIndex++;
     }
+}
+
+_NODISCARD std::vector<VkCommandBuffer> createSkBxCommandBuffer(Camera& cam, Model mod, std::vector<VkFramebuffer> framebuffers, VkCommandPool commandPool, SwapChainParam scp, VkDevice device)
+{
+    std::vector<VkCommandBuffer> SkBx_commandBuffers;
+    SkBx_commandBuffers.resize(framebuffers.size());
+
+    //TODO: secondary command buffer
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = commandPool;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = MAX_FRAMES_IN_FLIGHT;
+
+    if (vkAllocateCommandBuffers(device, &allocInfo, SkBx_commandBuffers.data()) != VK_SUCCESS) {
+        throw std::runtime_error("failed to allocate command buffers!");
+    }
+
+    recordCommandBuffers(SkBx_commandBuffers, cam, framebuffers, scp.extent, mod);
 
     return SkBx_commandBuffers;
 }
 
-void SkBx::InitSkBxStruct(const SwapChain& swapchain, const VkQueue trsfrtQ, const VkCommandPool commandPool, const DeviceHandler devh)
+
+
+void SkBx::InitSkBxStruct(const SwapChainParam swapchainParam, const VkQueue trsfrtQ, const VkCommandPool commandPool, const DeviceHandler devh)
 {
-    SkBx::renderpass = createRenderPass(swapchain.param, devh.device);
+    SkBx::renderpass = createRenderPass(swapchainParam, devh.device);
     SkBx::pipelineLayout = createStaticPipelineLayout(devh.device);
     SkBx::pipeline = createSKBXPipeline(SkBx::pipelineLayout, SkBx::renderpass, devh.device);
     SkBx::model.create(vertices, indices, devh, trsfrtQ, commandPool);
@@ -330,6 +337,21 @@ void SkBx::init(Camera& cam, SwapChain& swapchain, VkCommandPool commandPool, Vk
     framebuffers = createSWPCHNFrameBuffer(swapchain, SkBx::renderpass, device);
 
     commandBuffers = createSkBxCommandBuffer(cam, SkBx::model, framebuffers, commandPool, swapchain.param, device);
+}
+
+void SkBx::recreate(SwapChain& swapchain, Camera& cam, VkDevice device)
+{
+    //free framebuffer
+    for (auto fb : framebuffers)
+        vkDestroyFramebuffer(device, fb, nullptr);
+
+    //reset cb
+    for(auto cb : commandBuffers)
+        vkResetCommandBuffer(cb, /*VkCommandBufferResetFlagBits*/ 0);
+
+    framebuffers = createSWPCHNFrameBuffer(swapchain, SkBx::renderpass, device);
+
+    recordCommandBuffers(commandBuffers, cam, framebuffers, swapchain.param.extent, SkBx::model);
 }
 
 void SkBx::free(VkCommandPool commandPool, VkDevice device)
