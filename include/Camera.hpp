@@ -11,8 +11,6 @@
 #include "AppHandler.hpp"
 #include "DescriptorSet.hpp"
 
-#include "../Settings.hpp" //max_frame_in_flight
-
 //STL
 #include <array>
 #include <assert.h>

@@ -12,8 +12,6 @@
 #include "BufferUtils.hpp"
 #include "AppHandler.hpp"
 
-
-//TODO: model struct, function inside class
 struct Model
 {
     VkBuffer vertexBuffer;

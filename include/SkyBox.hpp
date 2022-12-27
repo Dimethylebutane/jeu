@@ -3,16 +3,13 @@
 
 #include <array>
 #include <stdexcept>
-//TODO: tuple group data on memory
-#include <tuple>
 
-#include "../Settings.hpp" //max_frame_in_flight
 #include "Vertex.hpp"
 #include "SwapChain.hpp"
 #include "Camera.hpp"
 #include "Model.hpp"
 
-//TODO: pb renderpass depend on image format -> skbx = buffer and creation of render pass and pipe by register skbx to image?
+//TODO: SkBx only for SwapChain images (register to image system?)
 struct SkBx
 {
 	//those 2 data are not accessed at same time
