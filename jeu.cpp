@@ -86,6 +86,8 @@ private:
 
         m_defaultSkBx.init(m_defaultCam, m_swapchain, commandPool, m_devh.device);
 
+        //TODO: input system
+        //TODO: re-organize code file
     }
 
     void mainLoop() {

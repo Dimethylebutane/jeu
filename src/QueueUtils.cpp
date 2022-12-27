@@ -1,4 +1,4 @@
-#include "../include/QueueUtils.hpp"
+#include "../include/Utils/QueueUtils.hpp"
 #include <vector>
 
 QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice device, const VkSurfaceKHR surface) {

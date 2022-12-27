@@ -7,10 +7,10 @@
 
 #include <vector>
 
-#include "Vertex.hpp"
-#include "UBO.hpp"
-#include "BufferUtils.hpp"
-#include "AppHandler.hpp"
+#include "../EngineBuildingBlock/Vertex.hpp"
+#include "../EngineBuildingBlock/UBO.hpp"
+#include "../EngineBuildingBlock/AppHandler.hpp"
+#include "../Utils/BufferUtils.hpp"
 
 struct Model
 {
@@ -19,7 +19,7 @@ struct Model
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
 
-    void create(std::vector<Vertex> vertices, std::vector<uint16_t> indices,
+    void create(std::vector<VertexPositionColor> vertices, std::vector<uint16_t> indices,
         const DeviceHandler devh, const VkQueue trsfrtQueue, const VkCommandPool commandPool);
 
     void destroy(const VkDevice dev);

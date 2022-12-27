@@ -1,8 +1,8 @@
-#include "../include/SkyBox.hpp"
-#include "../include/FileMngmtUtils.hpp"
-#include "../include/ShaderModuleUtils.hpp"
+#include "../include/GameStruct/SkyBox.hpp"
+#include "../include/Utils/FileMngmtUtils.hpp"
+#include "../include/Utils/ShaderModuleUtils.hpp"
 
-const std::vector<Vertex> vertices = {
+const std::vector<VertexPositionColor> vertices = {
      {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.6f, 0.1f}},
     {{0.5f, -0.5f, -0.5f}, {0.0f, 0.6f, 0.1f}},
     {{0.5f, 0.5f, -0.5f}, {0.0f, 0.6f, 0.1f}},
@@ -161,8 +161,8 @@ _NODISCARD VkPipeline createSKBXPipeline(VkPipelineLayout pipelineLayoutStatic, 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-    auto bindingDescription = Vertex::getBindingDescription();
-    auto attributeDescriptions = Vertex::getAttributeDescriptions();
+    auto bindingDescription = VertexPositionColor::getBindingDescription();
+    auto attributeDescriptions = VertexPositionColor::getAttributeDescriptions();
 
     vertexInputInfo.vertexBindingDescriptionCount = 1;
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());

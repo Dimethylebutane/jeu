@@ -1,8 +1,8 @@
-#include "../include/SwapChain.hpp"
+#include "../include/GameStruct/SwapChain.hpp"
 
-#include "../include/QueueUtils.hpp"
+#include "../include/Utils/QueueUtils.hpp"
 
-#include "../Settings.hpp"
+#include "../../Settings.hpp"
 
 #include <algorithm>
 #include <stdexcept>

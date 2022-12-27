@@ -4,7 +4,7 @@
 #include <array>
 #include <stdexcept>
 
-#include "Vertex.hpp"
+#include "../EngineBuildingBlock/Vertex.hpp"
 #include "SwapChain.hpp"
 #include "Camera.hpp"
 #include "Model.hpp"
