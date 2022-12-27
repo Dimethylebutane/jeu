@@ -7,9 +7,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "UBO.hpp"
-#include "AppHandler.hpp"
-#include "DescriptorSet.hpp"
+#include "../EngineBuildingBlock/UBO.hpp"
+#include "../EngineBuildingBlock/AppHandler.hpp"
+#include "../Utils/DescriptorSetUtils.hpp"
 
 //STL
 #include <array>

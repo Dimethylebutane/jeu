@@ -6,9 +6,9 @@
 
 #include <array>
 
-#include "BufferUtils.hpp"
+#include "../Utils/BufferUtils.hpp"
 #include "AppHandler.hpp"
-#include "../Settings.hpp"
+#include "../../Settings.hpp"
 
 /*
 struct UBO_buffmem {

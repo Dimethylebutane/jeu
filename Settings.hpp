@@ -1,5 +1,5 @@
 #pragma once
-#include "include/SwapChain.hpp"
+#include "include/GameStruct/SwapChain.hpp"
 #include "vulkan/vulkan.h"
 
 //TODO: remove dependency to this: only fence to limit cpu usage before drawing stuff

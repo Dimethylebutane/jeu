@@ -1,4 +1,4 @@
-#include "../include/ShaderModuleUtils.hpp"
+#include "../include/Utils/ShaderModuleUtils.hpp"
 
 VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice device)
 {

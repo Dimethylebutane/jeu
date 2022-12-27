@@ -7,10 +7,10 @@
 
 #include <vector>
 
-#include "Vertex.hpp"
-#include "UBO.hpp"
-#include "BufferUtils.hpp"
-#include "AppHandler.hpp"
+#include "../EngineBuildingBlock/Vertex.hpp"
+#include "../EngineBuildingBlock/UBO.hpp"
+#include "../EngineBuildingBlock/AppHandler.hpp"
+#include "../Utils/BufferUtils.hpp"
 
 struct Model
 {

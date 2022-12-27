@@ -1,4 +1,4 @@
-#include "../include/Camera.hpp"
+#include "../include/GameStruct/Camera.hpp"
 
 void Camera::init(const unsigned char numberOfFrame)
 {

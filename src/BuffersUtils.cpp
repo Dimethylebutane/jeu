@@ -1,4 +1,4 @@
-#include "../include/BufferUtils.hpp"
+#include "../include/Utils/BufferUtils.hpp"
 
 uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, const VkPhysicalDevice physicalDevice) {
     VkPhysicalDeviceMemoryProperties memProperties;

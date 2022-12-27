@@ -1,4 +1,4 @@
-#include "../include/Model.hpp"
+#include "../include/GameStruct/Model.hpp"
 
 void Model::create(std::vector<Vertex> vertices, std::vector<uint16_t> indices,
     const DeviceHandler devh, const VkQueue trsfrtQueue, const VkCommandPool commandPool)

@@ -1,6 +1,6 @@
-#include "../include/SkyBox.hpp"
-#include "../include/FileMngmtUtils.hpp"
-#include "../include/ShaderModuleUtils.hpp"
+#include "../include/GameStruct/SkyBox.hpp"
+#include "../include/Utils/FileMngmtUtils.hpp"
+#include "../include/Utils/ShaderModuleUtils.hpp"
 
 const std::vector<Vertex> vertices = {
      {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.6f, 0.1f}},

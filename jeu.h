@@ -14,16 +14,19 @@
 #include <stdexcept>
 #include <set>
 
-#include "include/SwapChain.hpp"
-#include "include/AppHandler.hpp"
-#include "include/ShaderModuleUtils.hpp"
-#include "include/FileMngmtUtils.hpp"
 #include "Settings.hpp"
-#include "include/Model.hpp"
-#include "include/CommandPool.hpp"
-#include "include/DescriptorSet.hpp"
-#include "include/Camera.hpp"
-#include "include/SkyBox.hpp"
+
+#include "include/EngineBuildingBlock/AppHandler.hpp"
+
+#include "include/GameStruct/SwapChain.hpp"
+#include "include/GameStruct/Model.hpp"
+#include "include/GameStruct/Camera.hpp"
+#include "include/GameStruct/SkyBox.hpp"
+
+#include "include/Utils/ShaderModuleUtils.hpp"
+#include "include/Utils/FileMngmtUtils.hpp"
+#include "include/Utils/CommandPoolUtils.hpp"
+#include "include/Utils/DescriptorSetUtils.hpp"
 
 #include "libUtils/include/MacroGlobal.hpp"
 
@@ -34,5 +37,5 @@
 
 //include validation layer stuff if enable
 #ifdef ENABLEVALIDATIONLAYERS
-#include "include/ValidationLayer.hpp"
+#include "include/EngineBuildingBlock/ValidationLayer.hpp"
 #endif 
