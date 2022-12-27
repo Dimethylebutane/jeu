@@ -1,19 +1,21 @@
 #include "../include/DescriptorSet.hpp"
 
-_NODISCARD VkDescriptorPool createDescriptorPool(VkDevice device,
+_NODISCARD VkDescriptorPool createDescriptorPool(
+    uint32_t numberOfDescriptor,
+    VkDevice device,
     VkDescriptorType type,
     VkDescriptorPoolCreateFlags flags) {
     VkDescriptorPool r{};
 
     VkDescriptorPoolSize poolSize{};
     poolSize.type = type;
-    poolSize.descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+    poolSize.descriptorCount = numberOfDescriptor;
 
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = 1;
     poolInfo.pPoolSizes = &poolSize;
-    poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+    poolInfo.maxSets = numberOfDescriptor;
     poolInfo.flags = flags;
 
     if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &r) != VK_SUCCESS) {

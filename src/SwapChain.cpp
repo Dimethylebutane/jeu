@@ -64,7 +64,7 @@ SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurface
     return details;
 }
 
-void createImageViews(VkDevice device, SwapChainData& data)
+void createImageViews(VkDevice device, SwapChain& data)
 {
     for (size_t i = 0; i < data.imageData.size(); i++) {
         VkImageViewCreateInfo createInfo{};
@@ -88,10 +88,10 @@ void createImageViews(VkDevice device, SwapChainData& data)
     }
 }
 
-_NODISCARD SwapChainData createSwapChain(GLFWwindow* window, DeviceHandler devh, VkSurfaceKHR surface, SwapChainParam param)
+_NODISCARD SwapChain createSwapChain(GLFWwindow* window, DeviceHandler devh, VkSurfaceKHR surface, SwapChainParam param)
 {
     //initialize blank data to return
-    SwapChainData data{};
+    SwapChain data{};
 
     //check capabilities of swapchain
     SwapChainSupportDetails swapChainSupport = querySwapChainSupport(devh.physicalDevice, surface);
@@ -169,7 +169,7 @@ _NODISCARD SwapChainData createSwapChain(GLFWwindow* window, DeviceHandler devh,
     return data;
 }
 
-void cleanUpSwapChain(SwapChainData sc, const VkDevice device)
+void cleanUpSwapChain(SwapChain sc, const VkDevice device)
 {
     for (auto f : sc.fences)
         vkDestroyFence(device, f, nullptr);

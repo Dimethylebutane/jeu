@@ -22,7 +22,7 @@ struct SkBx
 
 	std::vector<VkFramebuffer> framebuffers;
 
-	void init(Camera cam, SwapChainData swapchain, VkCommandPool commandPool, VkDevice device);
+	void init(Camera& cam, SwapChain& swapchain, VkCommandPool commandPool, VkDevice device);
 
 	void free(VkCommandPool commandPool, VkDevice device);
 
@@ -32,6 +32,6 @@ struct SkBx
 	static VkPipeline pipeline;
 	static Model model;
 
-	static void InitSkBxStruct(const SwapChainData swapchain, const VkQueue trsfrtQ, const VkCommandPool commandPool, const DeviceHandler devh);
+	static void InitSkBxStruct(const SwapChain& swapchain, const VkQueue trsfrtQ, const VkCommandPool commandPool, const DeviceHandler devh);
 	static void CleanSkBxStruct(VkDevice device);
 };

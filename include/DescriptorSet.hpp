@@ -8,7 +8,9 @@
 #include "UBO.hpp"
 
 //need to be destroy
-_NODISCARD VkDescriptorPool createDescriptorPool(VkDevice device,
+_NODISCARD VkDescriptorPool createDescriptorPool(
+    uint32_t numberOfDescriptor, 
+    VkDevice device,
     VkDescriptorType type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
     VkDescriptorPoolCreateFlags flags = 0);
 

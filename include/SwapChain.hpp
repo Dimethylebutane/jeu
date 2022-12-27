@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <array>
+#include <assert.h>
 
 #include "AppHandler.hpp"
 
@@ -15,7 +16,7 @@ struct SwapChainParam
     VkPresentModeKHR presentMode;
 };
 
-struct SwapChainData
+struct SwapChain
 {   
     struct ImageImageView
     {
@@ -31,6 +32,19 @@ struct SwapChainData
     std::vector<ImageImageView> imageData;
 
     std::vector<VkFence> fences;
+
+    VkResult getNextImage(uint32_t currentFrame, VkSemaphore imageAvailableSemaphores, uint32_t& imageIndex, VkDevice device)
+    {
+        vkWaitForFences(device, 1, &(fences[currentFrame]), VK_TRUE, UINT64_MAX);
+
+        VkResult result = vkAcquireNextImageKHR(device, vkSwapChain, UINT64_MAX, imageAvailableSemaphores, VK_NULL_HANDLE, &imageIndex);
+
+        assert(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);
+
+        //TODO: proper error handler ?
+
+        return result;
+    }
 };
 
 struct SwapChainSupportDetails {
@@ -40,8 +54,8 @@ struct SwapChainSupportDetails {
 };
 
 //need to be cleanedUp
-SwapChainData createSwapChain(GLFWwindow*, DeviceHandler, VkSurfaceKHR, SwapChainParam);
+SwapChain createSwapChain(GLFWwindow*, DeviceHandler, VkSurfaceKHR, SwapChainParam);
 
-void cleanUpSwapChain(SwapChainData sc, const VkDevice device);
+void cleanUpSwapChain(SwapChain sc, const VkDevice device);
 
 SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);

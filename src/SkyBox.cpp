@@ -3,14 +3,30 @@
 #include "../include/ShaderModuleUtils.hpp"
 
 const std::vector<Vertex> vertices = {
-    {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-    {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-    {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-    {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+     {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.6f, 0.1f}},
+    {{0.5f, -0.5f, -0.5f}, {0.0f, 0.6f, 0.1f}},
+    {{0.5f, 0.5f, -0.5f}, {0.0f, 0.6f, 0.1f}},
+    {{-0.5f, 0.5f, -0.5f}, {0.0f, 0.6f, 0.1f}},
+
+    {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.71f, 1.0f}},
+    {{0.5f, -0.5f, 0.5f}, {0.0f, 0.71f, 1.0f}},
+    {{0.5f, 0.5f, 0.5f}, {0.0f, 0.71f, 1.0f}},
+    {{-0.5f, 0.5f, 0.5f}, {0.0f, 0.71f, 1.0f}}
 };
 
 const std::vector<uint16_t> indices = {
-    0, 1, 2, 2, 3, 0
+    0, 1, 2,
+    2, 3, 0,
+    0, 3, 7,
+    7, 4, 0,
+    0, 4, 5,
+    5, 1, 0,
+    1, 6, 2,
+    6, 1, 5,
+    2, 7, 3,
+    7, 2, 6,
+    4, 6, 5,
+    6, 4, 7
 };
 
 VkPipelineLayout SkBx::pipelineLayout;
@@ -66,7 +82,7 @@ _NODISCARD VkRenderPass createRenderPass(SwapChainParam scp, VkDevice device)
 }
 
 //needToBedestroyed
-_NODISCARD std::vector<VkFramebuffer> createSWPCHNFrameBuffer(SwapChainData swapchain, VkRenderPass SkBx_renderpass, VkDevice device)
+_NODISCARD std::vector<VkFramebuffer> createSWPCHNFrameBuffer(SwapChain& swapchain, VkRenderPass SkBx_renderpass, VkDevice device)
 {
     std::vector<VkFramebuffer> swapChainFramebuffers;
 
@@ -228,7 +244,7 @@ _NODISCARD VkPipeline createSKBXPipeline(VkPipelineLayout pipelineLayoutStatic, 
     return SkBx_pipeline;
 }
 
-_NODISCARD std::vector<VkCommandBuffer> createSkBxCommandBuffer(Camera cam, Model mod, std::vector<VkFramebuffer> framebuffers, VkCommandPool commandPool, SwapChainParam scp, VkDevice device)
+_NODISCARD std::vector<VkCommandBuffer> createSkBxCommandBuffer(Camera& cam, Model mod, std::vector<VkFramebuffer> framebuffers, VkCommandPool commandPool, SwapChainParam scp, VkDevice device)
 {
     std::vector<VkCommandBuffer> SkBx_commandBuffers;
     SkBx_commandBuffers.resize(framebuffers.size());
@@ -301,7 +317,7 @@ _NODISCARD std::vector<VkCommandBuffer> createSkBxCommandBuffer(Camera cam, Mode
     return SkBx_commandBuffers;
 }
 
-void SkBx::InitSkBxStruct(const SwapChainData swapchain, const VkQueue trsfrtQ, const VkCommandPool commandPool, const DeviceHandler devh)
+void SkBx::InitSkBxStruct(const SwapChain& swapchain, const VkQueue trsfrtQ, const VkCommandPool commandPool, const DeviceHandler devh)
 {
     SkBx::renderpass = createRenderPass(swapchain.param, devh.device);
     SkBx::pipelineLayout = createStaticPipelineLayout(devh.device);
@@ -309,7 +325,7 @@ void SkBx::InitSkBxStruct(const SwapChainData swapchain, const VkQueue trsfrtQ, 
     SkBx::model.create(vertices, indices, devh, trsfrtQ, commandPool);
 }
 
-void SkBx::init(Camera cam, SwapChainData swapchain, VkCommandPool commandPool, VkDevice device)
+void SkBx::init(Camera& cam, SwapChain& swapchain, VkCommandPool commandPool, VkDevice device)
 {
     framebuffers = createSWPCHNFrameBuffer(swapchain, SkBx::renderpass, device);
 

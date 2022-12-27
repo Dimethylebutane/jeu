@@ -41,7 +41,7 @@ _NODISCARD UBO_buffmem createUBO(const unsigned char NumberOfFrame, const Device
 
     VkDeviceSize bufferSize = sizeof(UBOClass);
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    for (size_t i = 0; i < NumberOfFrame; i++) {
         createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, r.uniformBuffers()[i], r.uniformBuffersMemory()[i], devh);
 
         vkMapMemory(devh.device, r.uniformBuffersMemory()[i], 0, bufferSize, 0, &(r.uniformBuffersMapped()[i]) );

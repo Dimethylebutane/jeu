@@ -15,12 +15,14 @@
 
 //STL
 #include <array>
+#include <assert.h>
 
 //hight abstraction level of a camera object
 struct Camera
 {
 	struct CamUBO
 	{
+		alignas(16) glm::vec3 pos = glm::vec3(2, 2, 2);
 		alignas(16) glm::mat4 view;
 		alignas(16) glm::mat4 proj;
 	};
@@ -28,7 +30,6 @@ struct Camera
 
 	CamUBO m_data{};
 	UBO_buffmem m_camBuffMem;
-
 
 	std::vector<VkDescriptorSet> m_descrptrSet;
 
@@ -38,8 +39,10 @@ struct Camera
 	static VkDescriptorSetLayout CameraDescriptorSetLayout;
 
 
-	void init(const char numberOfFrame)
+	void init(const unsigned char numberOfFrame)
 	{
+		assert(numberOfFrame != 0);
+
 		m_camBuffMem = createUBO<CamUBO>(numberOfFrame, CameraDevh);
 		m_descrptrSet = createDescriptorSets<CamUBO>(numberOfFrame, CameraDescriptorSetLayout, CameraDescriptorPool, CameraDevh.device, m_camBuffMem);
 	}
@@ -57,10 +60,10 @@ struct Camera
 		memcpy(m_camBuffMem.uniformBuffersMapped()[imageIndex], &m_data, sizeof(m_data));
 	}
 
-	static void InitCamerasClass(DeviceHandler devh)
+	static void InitCamerasClass(uint32_t NumberOfImageToBind, DeviceHandler devh)
 	{
 		CameraDevh = devh;
-		CameraDescriptorPool = createDescriptorPool(CameraDevh.device, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
+		CameraDescriptorPool = createDescriptorPool(NumberOfImageToBind, CameraDevh.device, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
 		CameraDescriptorSetLayout = createDescriptorSetLayout(CameraDevh.device);
 	}
 

@@ -3,50 +3,6 @@
 
 #include "jeu.h"
 
-#include "vulkan/vulkan.h"
-#include "glm/glm.hpp"
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#include <tiny_gltf.h>
-
-//#include <iostream>
-//#include <fstream>
-//#include <algorithm>
-//#include <vector>
-//#include <cstring>
-//#include <cstdlib>
-//#include <cstdint>
-//#include <limits>
-//#include <optional>
-#include <stdexcept>
-#include <set>
-
-#include "include/SwapChain.hpp"
-#include "include/AppHandler.hpp"
-#include "include/ShaderModuleUtils.hpp"
-#include "include/FileMngmtUtils.hpp"
-#include "Settings.hpp"
-#include "include/Model.hpp"
-#include "include/CommandPool.hpp"
-#include "include/DescriptorSet.hpp"
-#include "include/Camera.hpp"
-#include "include/SkyBox.hpp"
-
-#include "libUtils/include/MacroGlobal.hpp"
-
-
-#ifndef NDEBUG
-#define ENABLEVALIDATIONLAYERS
-#endif
-
-//include validation layer stuff if enable
-#ifdef ENABLEVALIDATIONLAYERS
-#include "include/ValidationLayer.hpp"
-#endif 
-
-
 class HelloTriangleApplication {
 public:
     void run() {
@@ -69,7 +25,7 @@ private:
 
     QueueHandler m_queues;
 
-    SwapChainData m_swapchain;
+    SwapChain m_swapchain;
 
     std::vector<VkFramebuffer> swapChainFramebuffers;
 
@@ -82,7 +38,7 @@ private:
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
 
-    bool framebufferResized = false;
+    bool framebufferResized = false; //TODO: what is that for??
 
     void initWindow() {
         glfwInit();
@@ -115,7 +71,7 @@ private:
         createFirstSemaphore();
 
 #ifdef CAMERA
-        Camera::InitCamerasClass(m_devh);
+        Camera::InitCamerasClass((uint32_t)m_swapchain.imageData.size(), m_devh);
 #endif // CAMERA
 
         commandPool = createCommandPool(m_devh, m_is.surface);
@@ -141,16 +97,11 @@ private:
     uint32_t currentFrame = 0; // % max_frame_in_flight
     void drawFrame()
     {
-        vkWaitForFences(m_devh.device, 1, &(m_swapchain.fences[currentFrame]), VK_TRUE, UINT64_MAX);
-
         uint32_t currentImageIndex = 0;
-        VkResult result = vkAcquireNextImageKHR(m_devh.device, m_swapchain.vkSwapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &currentImageIndex);
 
-        if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-            recreateSwapChain();
-            return;
-        }
-        else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        VkResult result = m_swapchain.getNextImage(currentFrame, imageAvailableSemaphores[currentFrame], currentImageIndex, m_devh.device);
+        
+        if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
             throw std::runtime_error("failed to acquire swap chain image!");
         }
 
