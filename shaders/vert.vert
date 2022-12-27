@@ -2,6 +2,8 @@
 
 layout(binding = 0) uniform UniformBufferObject {
     vec3 pos;
+    vec3 up;
+    vec3 front;
     mat4 view;
     mat4 proj;
 } camUBO;

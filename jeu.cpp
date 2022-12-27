@@ -79,6 +79,11 @@ private:
         SkBx::InitSkBxStruct(m_swapchain, m_queues.graphicsQueue, commandPool, m_devh);
 
         m_defaultCam.init( static_cast<char>(m_swapchain.imageData.size()) );
+        m_defaultCam.m_data.proj = glm::perspective(glm::radians(45.0f), m_swapchain.param.extent.width / (float)m_swapchain.param.extent.height, 0.1f, 10.0f);
+        m_defaultCam.m_data.proj[1][1] *= -1;
+        m_defaultCam.updateCamPosition(glm::vec3(0, 0, 0));
+        m_defaultCam.lookAt(glm::vec3(1, 0, 0));
+
         m_defaultSkBx.init(m_defaultCam, m_swapchain, commandPool, m_devh.device);
 
         //TODO: model + shader + pipeline
@@ -105,9 +110,12 @@ private:
             throw std::runtime_error("failed to acquire swap chain image!");
         }
 
-        m_defaultCam.m_data.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        m_defaultCam.m_data.proj = glm::perspective(glm::radians(45.0f), m_swapchain.param.extent.width / (float)m_swapchain.param.extent.height, 0.1f, 10.0f);
-        m_defaultCam.m_data.proj[1][1] *= -1;
+        static auto startTime = std::chrono::high_resolution_clock::now();
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+        startTime = currentTime;
+        m_defaultCam.rotateCamera({ 0.f, 1.f, 0.f }, time * glm::pi<float>());
 
         m_defaultCam.updateBuffer(currentImageIndex);
         

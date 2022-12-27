@@ -22,7 +22,9 @@ struct Camera
 {
 	struct CamUBO
 	{
-		alignas(16) glm::vec3 pos = glm::vec3(2, 2, 2);
+		alignas(16) glm::vec3 pos = { 0.f, 0.f, 0.f };
+		alignas(16) glm::vec3 up = {0.f, 0.f, 1.f};
+		alignas(16) glm::vec3 front = { 1.f, 0.f, 0.f };
 		alignas(16) glm::mat4 view;
 		alignas(16) glm::mat4 proj;
 	};
@@ -32,12 +34,6 @@ struct Camera
 	UBO_buffmem m_camBuffMem;
 
 	std::vector<VkDescriptorSet> m_descrptrSet;
-
-	//static stuff
-	static VkDescriptorPool CameraDescriptorPool;
-	static DeviceHandler CameraDevh;
-	static VkDescriptorSetLayout CameraDescriptorSetLayout;
-
 
 	void init(const unsigned char numberOfFrame)
 	{
@@ -57,8 +53,40 @@ struct Camera
 
 	void updateBuffer(uint16_t imageIndex)
 	{
+		m_data.view = glm::lookAt(m_data.pos, m_data.front + m_data.pos, m_data.up);
+		
 		memcpy(m_camBuffMem.uniformBuffersMapped()[imageIndex], &m_data, sizeof(m_data));
 	}
+
+	void updateCamPosition(glm::vec3 newPos)
+	{
+		m_data.pos = newPos;
+	}
+
+	void moveCameraOf(glm::vec3 deplacement)
+	{
+		m_data.pos += deplacement;
+	}
+
+	void lookAt(glm::vec3 Center)
+	{
+		glm::vec3 old = m_data.front;
+
+		m_data.front = Center - m_data.pos;
+
+		m_data.up = glm::cross(m_data.front, m_data.up) == glm::vec3(0, 0, 0) ? -old : m_data.up;
+	}
+
+	void rotateCamera(glm::vec3 axis, float angle)
+	{
+		m_data.front = glm::rotate(glm::mat4(1), angle, axis) * glm::vec4(m_data.front, 1);
+		m_data.up = glm::rotate(glm::mat4(1), angle, axis) * glm::vec4(m_data.up, 1);
+	}
+
+	//static stuff
+	static VkDescriptorPool CameraDescriptorPool;
+	static DeviceHandler CameraDevh;
+	static VkDescriptorSetLayout CameraDescriptorSetLayout;
 
 	static void InitCamerasClass(uint32_t NumberOfImageToBind, DeviceHandler devh)
 	{
