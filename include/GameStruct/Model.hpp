@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include "../EngineBuildingBlock/Vertex.hpp"
+#include "Vertex.hpp"
 #include "../EngineBuildingBlock/UBO.hpp"
 #include "../EngineBuildingBlock/AppHandler.hpp"
 #include "../Utils/BufferUtils.hpp"

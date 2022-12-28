@@ -17,11 +17,13 @@
 #include "Settings.hpp"
 
 #include "include/EngineBuildingBlock/AppHandler.hpp"
+#include "include/EngineBuildingBlock/GLFWCallback.hpp"dd
 
 #include "include/GameStruct/SwapChain.hpp"
 #include "include/GameStruct/Model.hpp"
 #include "include/GameStruct/Camera.hpp"
 #include "include/GameStruct/SkyBox.hpp"
+#include "include/GameStruct/Input.hpp"
 
 #include "include/Utils/ShaderModuleUtils.hpp"
 #include "include/Utils/FileMngmtUtils.hpp"

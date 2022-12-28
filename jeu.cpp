@@ -38,7 +38,7 @@ private:
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
 
-    bool framebufferResized = false; //TODO: what is that for??
+    bool framebufferResized = false; //framebuffer resize callback
 
     void initWindow() {
         glfwInit();
@@ -48,6 +48,12 @@ private:
         window = glfwCreateWindow(WIDTH, HEIGHT, "Jeu", nullptr, nullptr);
         glfwSetWindowUserPointer(window, this);
         glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
+
+        //input parameter
+        glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
+
+        if (glfwRawMouseMotionSupported())
+            glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     }
 
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
@@ -86,8 +92,7 @@ private:
 
         m_defaultSkBx.init(m_defaultCam, m_swapchain, commandPool, m_devh.device);
 
-        //TODO: input system
-        //TODO: re-organize code file
+        //TODO: see Input.cpp
     }
 
     void mainLoop() {

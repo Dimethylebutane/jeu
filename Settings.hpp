@@ -2,7 +2,6 @@
 #include "include/GameStruct/SwapChain.hpp"
 #include "vulkan/vulkan.h"
 
-//TODO: remove dependency to this: only fence to limit cpu usage before drawing stuff
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const uint32_t WIDTH = 800;

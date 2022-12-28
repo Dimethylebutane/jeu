@@ -40,8 +40,6 @@ struct SwapChain
 
         assert(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR);
 
-        //TODO: proper error handler ?
-
         return result;
     }
 
