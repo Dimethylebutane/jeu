@@ -17,7 +17,7 @@
 #include "Settings.hpp"
 
 #include "include/EngineBuildingBlock/AppHandler.hpp"
-#include "include/EngineBuildingBlock/GLFWCallback.hpp"dd
+#include "include/EngineBuildingBlock/GLFWCallback.hpp"
 
 #include "include/GameStruct/SwapChain.hpp"
 #include "include/GameStruct/Model.hpp"

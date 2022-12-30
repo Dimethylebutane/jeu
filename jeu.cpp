@@ -92,7 +92,8 @@ private:
 
         m_defaultSkBx.init(m_defaultCam, m_swapchain, commandPool, m_devh.device);
 
-        //TODO: see Input.cpp
+        //TODO: pipeline creation and Model renderer
+        //TODO: text renderer
     }
 
     void mainLoop() {

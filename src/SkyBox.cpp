@@ -329,7 +329,7 @@ void SkBx::InitSkBxStruct(const SwapChainParam swapchainParam, const VkQueue trs
     SkBx::renderpass = createRenderPass(swapchainParam, devh.device);
     SkBx::pipelineLayout = createStaticPipelineLayout(devh.device);
     SkBx::pipeline = createSKBXPipeline(SkBx::pipelineLayout, SkBx::renderpass, devh.device);
-    SkBx::model.create(vertices, indices, devh, trsfrtQ, commandPool);
+    SkBx::model.create<VertexPositionColor>(vertices, indices, devh, trsfrtQ, commandPool);
 }
 
 void SkBx::init(Camera& cam, SwapChain& swapchain, VkCommandPool commandPool, VkDevice device)
