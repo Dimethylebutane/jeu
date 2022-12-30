@@ -1,4 +1,7 @@
 #pragma once
+#include "MacroGlobal.hpp"
+
+#include <tiny_gltf.h>
 
 #include <fstream>
 
@@ -18,4 +21,22 @@ static std::vector<char> readFile(const std::string& filename) {
     file.close();
 
     return buffer;
+}
+
+tinygltf::Model LoadGLTFModel(const char* filename)
+{
+    tinygltf::TinyGLTF loader;
+
+    tinygltf::Model model;
+
+    std::string err;
+    std::string warn;
+
+    bool res = loader.LoadASCIIFromFile(&model, &err, &warn, filename);
+    if (!warn.empty())
+        LOG("WARN in load model " << warn);
+    if (!err.empty())
+        LOGERR("ERR in load model" << err);
+
+    return model;
 }

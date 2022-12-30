@@ -28,6 +28,7 @@ private:
     SwapChain m_swapchain;
 
     std::vector<VkFramebuffer> swapChainFramebuffers;
+    VkRenderPass drawMainRenderPass;
 
     Camera m_defaultCam;
     SkBx m_defaultSkBx;
@@ -91,6 +92,8 @@ private:
         m_defaultCam.lookAt(glm::vec3(1, 0, 0));
 
         m_defaultSkBx.init(m_defaultCam, m_swapchain, commandPool, m_devh.device);
+
+        createMainDrawRenderPass();
 
         //TODO: pipeline creation and Model renderer
         //TODO: text renderer
@@ -368,6 +371,48 @@ private:
             {
                 throw std::runtime_error("failed to create synchronization objects for a frame!");
             }
+        }
+    }
+
+    void createMainDrawRenderPass() {
+        VkAttachmentDescription colorAttachment{};
+        colorAttachment.format = m_swapchain.param.imageFormat.format;
+        colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colorAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+        VkAttachmentReference colorAttachmentRef{};
+        colorAttachmentRef.attachment = 0;
+        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkSubpassDescription subpass{};
+        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpass.colorAttachmentCount = 1;
+        subpass.pColorAttachments = &colorAttachmentRef;
+
+        VkSubpassDependency dependency{};
+        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependency.dstSubpass = 0;
+        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.srcAccessMask = 0;
+        dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+        VkRenderPassCreateInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderPassInfo.attachmentCount = 1;
+        renderPassInfo.pAttachments = &colorAttachment;
+        renderPassInfo.subpassCount = 1;
+        renderPassInfo.pSubpasses = &subpass;
+        renderPassInfo.dependencyCount = 1;
+        renderPassInfo.pDependencies = &dependency;
+
+        if (vkCreateRenderPass(m_devh.device, &renderPassInfo, nullptr, &drawMainRenderPass) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create render pass!");
         }
     }
 

@@ -46,7 +46,7 @@ _NODISCARD VkRenderPass createRenderPass(SwapChainParam scp, VkDevice device)
     colorAttachmentSKBX.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     colorAttachmentSKBX.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     colorAttachmentSKBX.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachmentSKBX.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    colorAttachmentSKBX.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkAttachmentReference colorAttachmentRef{};
     colorAttachmentRef.attachment = 0;
