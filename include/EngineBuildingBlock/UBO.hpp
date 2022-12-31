@@ -10,13 +10,6 @@
 #include "AppHandler.hpp"
 #include "../../Settings.hpp"
 
-/*
-struct UBO_buffmem {
-    std::array<VkBuffer, MAX_FRAMES_IN_FLIGHT> uniformBuffers;
-    std::array<VkDeviceMemory, MAX_FRAMES_IN_FLIGHT> uniformBuffersMemory;
-    std::array<void*, MAX_FRAMES_IN_FLIGHT> uniformBuffersMapped;
-};*/
-
 //ensure that data are at the same place in memory so it ease data access
 struct UBO_buffmem
 {

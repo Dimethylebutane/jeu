@@ -93,7 +93,8 @@ private:
 
         m_defaultSkBx.init(m_defaultCam, m_swapchain, commandPool, m_devh.device);
 
-        createMainDrawRenderPass();
+        //createMainDrawRenderPass();
+
 
         //TODO: pipeline creation and Model renderer
         //TODO: text renderer
@@ -414,6 +415,11 @@ private:
         if (vkCreateRenderPass(m_devh.device, &renderPassInfo, nullptr, &drawMainRenderPass) != VK_SUCCESS) {
             throw std::runtime_error("failed to create render pass!");
         }
+    }
+
+    void testCreatePipeline()
+    {
+
     }
 
 #pragma region DeviceChoice
