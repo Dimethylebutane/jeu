@@ -2,17 +2,22 @@
 //
 
 #include "jeu.h"
-
 class HelloTriangleApplication {
 public:
     void run() {
-        initWindow();
-        initVulkan();
+        initWindow(); //glfw stuff
+        initVulkan(); //vulkan stuff
+        initEngine(); //Engine static Structure stuff
+
+        createGameStruct();
+
         mainLoop();
         cleanup();
     }
 
 private:
+#pragma region GameEngineProperties
+
     GLFWwindow* window;
 
 #ifdef ENABLEVALIDATIONLAYERS
@@ -21,25 +26,23 @@ private:
 
     ISHandler m_is;
 
-    DeviceHandler m_devh{VK_NULL_HANDLE,  VK_NULL_HANDLE};
+    DeviceHandler m_devh{ VK_NULL_HANDLE,  VK_NULL_HANDLE };
 
     QueueHandler m_queues;
 
     SwapChain m_swapchain;
 
-    std::vector<VkFramebuffer> swapChainFramebuffers;
-    VkRenderPass drawMainRenderPass;
+    VkCommandPool m_commandPool;
+
+#pragma endregion
+
+    //VkRenderPass drawMainRenderPass; //todo: renderPass and model and stuff
 
     Camera m_defaultCam;
     SkBx m_defaultSkBx;
 
-    VkCommandPool commandPool;
-    std::array<VkCommandBuffer, MAX_FRAMES_IN_FLIGHT> SkBx_commandBuffers;
-
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
-
-    bool framebufferResized = false; //framebuffer resize callback
 
     void initWindow() {
         glfwInit();
@@ -57,12 +60,14 @@ private:
             glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     }
 
+    bool framebufferResized = false; //framebuffer resize callback
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
         auto app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
         app->framebufferResized = true;
     }
 
-    void initVulkan() {
+    void initVulkan()
+    {
         createInstance();
 
 #ifdef ENABLEVALIDATIONLAYERS
@@ -74,24 +79,28 @@ private:
         createLogicalDevice();
 
         m_swapchain.init(window, m_devh, m_is.surface, swapChainWantedParam);
+        m_commandPool = createCommandPool(m_devh, m_is.surface);
+    }
 
+    void initEngine()
+    {
         createFirstSemaphore();
 
-#ifdef CAMERA
         Camera::InitCamerasClass((uint32_t)m_swapchain.imageData.size(), m_devh);
-#endif // CAMERA
 
-        commandPool = createCommandPool(m_devh, m_is.surface);
+        SkBx::InitSkBxStruct(m_swapchain.param, m_queues.graphicsQueue, m_commandPool, m_devh);
+    }
 
-        SkBx::InitSkBxStruct(m_swapchain.param, m_queues.graphicsQueue, commandPool, m_devh);
-
-        m_defaultCam.init( static_cast<char>(m_swapchain.imageData.size()) );
+    //TODO: virtual and override this function when engine will be separated from game
+    void createGameStruct()
+    {
+        m_defaultCam.init(static_cast<char>(m_swapchain.imageData.size()));
         m_defaultCam.m_data.proj = glm::perspective(glm::radians(45.0f), m_swapchain.param.extent.width / (float)m_swapchain.param.extent.height, 0.1f, 10.0f);
         m_defaultCam.m_data.proj[1][1] *= -1;
         m_defaultCam.updateCamPosition(glm::vec3(0, 0, 0));
         m_defaultCam.lookAt(glm::vec3(1, 0, 0));
 
-        m_defaultSkBx.init(m_defaultCam, m_swapchain, commandPool, m_devh.device);
+        m_defaultSkBx.init(m_defaultCam, m_swapchain, m_commandPool, m_devh.device);
 
         //createMainDrawRenderPass();
 
@@ -115,7 +124,7 @@ private:
         uint32_t currentImageIndex = 0;
 
         VkResult result = m_swapchain.getNextImage(currentFrame, imageAvailableSemaphores[currentFrame], currentImageIndex, m_devh.device);
-        
+
         if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
             throw std::runtime_error("failed to acquire swap chain image!");
         }
@@ -128,7 +137,7 @@ private:
         m_defaultCam.rotateCamera({ 0.f, 1.f, 0.f }, time * glm::pi<float>());
 
         m_defaultCam.updateBuffer(currentImageIndex);
-        
+
         vkResetFences(m_devh.device, 1, &(m_swapchain.fences[currentFrame]));
 
         VkSubmitInfo submitInfo{};
@@ -177,22 +186,19 @@ private:
     }
 
     void cleanup() {
-        
-        for(auto s : imageAvailableSemaphores)
-            vkDestroySemaphore(m_devh.device, s, nullptr);
-        
-        for(auto s : renderFinishedSemaphores)
+
+        for (auto s : imageAvailableSemaphores)
             vkDestroySemaphore(m_devh.device, s, nullptr);
 
-        for (auto framebuffer : swapChainFramebuffers)
-            vkDestroyFramebuffer(m_devh.device, framebuffer, nullptr);
+        for (auto s : renderFinishedSemaphores)
+            vkDestroySemaphore(m_devh.device, s, nullptr);
 
         m_swapchain.cleanUp(m_devh.device);
 
         //vkDestroyPipeline(m_devh.device, graphicsPipeline, nullptr);
         //vkDestroyPipelineLayout(m_devh.device, pipelineLayout, nullptr);
 
-        m_defaultSkBx.free(commandPool, m_devh.device);
+        m_defaultSkBx.free(m_commandPool, m_devh.device);
         m_defaultCam.clean();
 
         /*for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -203,7 +209,7 @@ private:
 
         SkBx::CleanSkBxStruct(m_devh.device);
 
-        vkDestroyCommandPool(m_devh.device, commandPool, nullptr);
+        vkDestroyCommandPool(m_devh.device, m_commandPool, nullptr);
 
 #ifdef CAMERA
         Camera::CleanCameraClass();
@@ -375,6 +381,7 @@ private:
         }
     }
 
+    /*
     void createMainDrawRenderPass() {
         VkAttachmentDescription colorAttachment{};
         colorAttachment.format = m_swapchain.param.imageFormat.format;
@@ -416,59 +423,55 @@ private:
             throw std::runtime_error("failed to create render pass!");
         }
     }
-
-    void testCreatePipeline()
-    {
-
-    }
+    */
 
 #pragma region DeviceChoice
 
-bool isDeviceSuitable(VkPhysicalDevice device) {
-    QueueFamilyIndices indices = findQueueFamilies(device, m_is.surface);
+    bool isDeviceSuitable(VkPhysicalDevice device) {
+        QueueFamilyIndices indices = findQueueFamilies(device, m_is.surface);
 
-    bool extensionsSupported = checkDeviceExtensionSupport(device);
+        bool extensionsSupported = checkDeviceExtensionSupport(device);
 
-    bool swapChainAdequate = false;
-    if (extensionsSupported) {
-        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device, m_is.surface);
-        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+        bool swapChainAdequate = false;
+        if (extensionsSupported) {
+            SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device, m_is.surface);
+            swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+        }
+
+        return indices.isComplete() && extensionsSupported && swapChainAdequate;
     }
 
-    return indices.isComplete() && extensionsSupported && swapChainAdequate;
-}
+    bool checkDeviceExtensionSupport(VkPhysicalDevice device) {
+        uint32_t extensionCount;
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
-bool checkDeviceExtensionSupport(VkPhysicalDevice device) {
-    uint32_t extensionCount;
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
-    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+        std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
-    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+        for (const auto& extension : availableExtensions) {
+            requiredExtensions.erase(extension.extensionName);
+        }
 
-    for (const auto& extension : availableExtensions) {
-        requiredExtensions.erase(extension.extensionName);
+        return requiredExtensions.empty();
     }
 
-    return requiredExtensions.empty();
-}
+    std::vector<const char*> getRequiredExtensions() {
+        uint32_t glfwExtensionCount = 0;
+        const char** glfwExtensions;
+        glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-std::vector<const char*> getRequiredExtensions() {
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+        std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
 
 #ifdef ENABLEVALIDATIONLAYERS
-    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif // ENABLEVALIDATIONLAYERS
 
 
-    return extensions;
-}
+        return extensions;
+    }
 
 #pragma endregion
 };
@@ -478,7 +481,7 @@ int main() {
 
     LOG(RESOURCES_PATH)
 
-    app.run();
+        app.run();
     PAUSE;
 
     return EXIT_SUCCESS;

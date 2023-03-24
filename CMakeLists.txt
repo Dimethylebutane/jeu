@@ -33,8 +33,8 @@ add_library(GLFW SHARED IMPORTED) # or STATIC instead of SHARED
 
 set_target_properties(GLFW PROPERTIES
   #IMPORTED_LOCATION "${CMAKE_LIBRARY_PATH}/GLFW/glfw-3.3.5.bin.WIN64/glfw-3.3.5.bin.WIN64/lib-vc2022/glfw3.lib"
-  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_LIBRARY_PATH}/GLFW/include"
-  IMPORTED_IMPLIB "${CMAKE_LIBRARY_PATH}/GLFW/lib-vc2022/glfw3.lib"
+  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_LIBRARY_PATH}/GLFW/glfw-3.3.5.bin.WIN64/glfw-3.3.5.bin.WIN64/include"
+  IMPORTED_IMPLIB "${CMAKE_LIBRARY_PATH}/GLFW/glfw-3.3.5.bin.WIN64/glfw-3.3.5.bin.WIN64/lib-vc2022/glfw3.lib"
 	#win only tag??
 )
 
