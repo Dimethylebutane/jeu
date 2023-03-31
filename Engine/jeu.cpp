@@ -2,6 +2,10 @@
 //
 
 #include "jeu.h"
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
 class HelloTriangleApplication {
 public:
     void run() {

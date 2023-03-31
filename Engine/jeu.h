@@ -28,7 +28,7 @@
 #include "include/Utils/CommandPoolUtils.hpp"
 #include "include/Utils/DescriptorSetUtils.hpp"
 
-#include "libUtils/include/MacroGlobal.hpp"
+#include "MacroGlobal.hpp"
 
 
 #ifndef NDEBUG

@@ -2,7 +2,7 @@
 
 #include "../include/Utils/QueueUtils.hpp"
 
-#include "../../Settings.hpp"
+#include "../Settings.hpp"
 
 #include <algorithm>
 #include <stdexcept>

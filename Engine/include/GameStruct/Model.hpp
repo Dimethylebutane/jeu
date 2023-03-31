@@ -1,9 +1,13 @@
 #pragma once
 
 #define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 
 #include <tiny_gltf.h>
+
+#include <tiny_obj_loader.h>
 
 #include <vulkan/vulkan.h>
 
@@ -74,6 +78,10 @@ struct Model
     void destroy(const VkDevice dev);
 };
 
-bool LoadModelGeometry(Model& toLoad, VkPipelineVertexInputStateCreateInfo& vertexInputInfo, VkPipelineInputAssemblyStateCreateInfo& inputAssembly,
+bool LoadModelMeshGeometry(Model& toLoad, VkPipelineVertexInputStateCreateInfo& vertexInputInfo, VkPipelineInputAssemblyStateCreateInfo& inputAssembly,
     const tinygltf::Model& model, const tinygltf::Mesh& mesh,
+    DeviceHandler devh, VkQueue trsfrtQueue, VkCommandPool commandPool);
+
+bool loadModelFromObj(Model& toLoad, const std::string& MODEL_PATH,
+    VkVertexInputBindingDescription& inputBindingDescriptor, std::vector<VkVertexInputAttributeDescription>& InputAttrDesc,
     DeviceHandler devh, VkQueue trsfrtQueue, VkCommandPool commandPool);

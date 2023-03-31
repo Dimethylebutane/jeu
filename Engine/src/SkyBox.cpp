@@ -138,8 +138,8 @@ _NODISCARD VkPipeline createSKBXPipeline(VkPipelineLayout pipelineLayoutStatic, 
 {
     VkPipeline SkBx_pipeline;
 
-    auto vertShaderCode = readFile(RESOURCES_PATH "/shaders/vert.spv");
-    auto fragShaderCode = readFile(RESOURCES_PATH "/shaders/frag.spv");
+    auto vertShaderCode = readFile(RESOURCES_PATH "/shaders/vertSkBx.spv");
+    auto fragShaderCode = readFile(RESOURCES_PATH "/shaders/fragSkBx.spv");
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode, device);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode, device);

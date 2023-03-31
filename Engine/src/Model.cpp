@@ -17,7 +17,7 @@ struct RAWBUFFER
     size_t nElem;
 };
 
-//returned value < 0 if error
+//return size of one element of the buffer (size * dimension) value < 0 if error
 static uint64_t sizeOffAccessorComponant(tinygltf::Accessor access, uint16_t& dimension, uint16_t& size)
 {
     uint16_t compType = (uint16_t)(access.componentType - 5120);
@@ -59,6 +59,7 @@ static uint64_t sizeOffAccessorComponant(tinygltf::Accessor access, uint16_t& di
     switch (access.type)
     {
     case TINYGLTF_TYPE_SCALAR:
+        dimension = 1;
         break;
     case TINYGLTF_TYPE_VEC2:
         dimension = 2;
@@ -96,14 +97,14 @@ RAWBUFFER getBufferData(const tinygltf::Accessor& access, const tinygltf::Model&
     uint16_t dim; uint16_t si;
 
     uint64_t size = sizeOffAccessorComponant(access, dim, si);
+    
     assert(size > 0);
-
     if (size < 0)
         return {nullptr, 0, 0};
 
     //total size of buffer
-    r.sizeOfBuffer = size * access.count;
-    r.nElem = access.count;
+    r.sizeOfBuffer = size * access.count; //total size of buffer
+    r.nElem = access.count;               //number off element in buffer (how many vec3 or mat4 in the buffer)
 
     //get data ptr
     r.pbuff = buff.data.data() + buffView.byteOffset + access.byteOffset; //get ptr to data
@@ -120,7 +121,7 @@ static void copyBufferWithDec(uint8_t* dst, uint8_t* src, size_t nElem, size_t s
     }
 }
 
-bool LoadModelGeometry(Model& toLoad, VkPipelineVertexInputStateCreateInfo& vertexInputInfo, VkPipelineInputAssemblyStateCreateInfo& inputAssembly,
+bool LoadModelMeshGeometry(Model& toLoad, VkPipelineVertexInputStateCreateInfo& vertexInputInfo, VkPipelineInputAssemblyStateCreateInfo& inputAssembly,
     const tinygltf::Model& model, const tinygltf::Mesh& mesh, 
     DeviceHandler devh, VkQueue trsfrtQueue, VkCommandPool commandPool)
 {
@@ -141,16 +142,19 @@ bool LoadModelGeometry(Model& toLoad, VkPipelineVertexInputStateCreateInfo& vert
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
 
     //TODO: data alignement
-    for (auto& prim : mesh.primitives)
+    for (auto& primitive : mesh.primitives)
     {
         //index buffer
         {
-            tinygltf::Accessor access = model.accessors[prim.indices];
+            tinygltf::Accessor access = model.accessors[primitive.indices];
+
+            assert(access.componentType == TINYGLTF_TYPE_SCALAR && "ERROR mesh indices type is not scalar");
+
             indexRawBuff = getBufferData(access, model);
         }
-
-        //mode -> input assembly
-        switch (prim.mode)
+        
+        //mode -> input assembly = primitive topology
+        switch (primitive.mode)
         {
         case 0://pts
             inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
@@ -177,21 +181,23 @@ bool LoadModelGeometry(Model& toLoad, VkPipelineVertexInputStateCreateInfo& vert
             break;
         }
 
-        attributeDescriptions.reserve(prim.attributes.size());
+        //TODO: material (texture and stuff)
+
+        attributeDescriptions.reserve(primitive.attributes.size());
         int loc = 0;
         size_t offset = 0;
 
         RAWBUFFER POSRawBuff, NORMRawBuff, COLRawBuff;
         size_t posElemSize, normElemSize, colElemSize, vertexElemSize;
 
-        if (prim.attributes.contains("POSITION"))
+        assert(primitive.attributes.contains("POSITION") && "ERROR primitive does not contains position");
         {
             VkVertexInputAttributeDescription IAD{};
             IAD.binding = 0;
             IAD.location = loc;
             IAD.offset = offset;
 
-            tinygltf::Accessor access = model.accessors[prim.attributes.at("POSITION")];
+            tinygltf::Accessor access = model.accessors[primitive.attributes.at("POSITION")];
             POSRawBuff = getBufferData(access, model);
 
             IAD.format = VK_FORMAT_R32G32B32_SFLOAT;
@@ -201,15 +207,15 @@ bool LoadModelGeometry(Model& toLoad, VkPipelineVertexInputStateCreateInfo& vert
             loc++;
             attributeDescriptions.push_back(IAD);
         }
-        else return false; //POSITION is require
-        if (prim.attributes.contains("NORMAL"))
+
+        if (primitive.attributes.contains("NORMAL"))
         {
             VkVertexInputAttributeDescription IAD{};
             IAD.binding = 0;
             IAD.location = 1;
             IAD.offset = offset;
 
-            tinygltf::Accessor access = model.accessors[prim.attributes.at("NORMAL")];
+            tinygltf::Accessor access = model.accessors[primitive.attributes.at("NORMAL")];
             NORMRawBuff = getBufferData(access, model);
 
             IAD.format = VK_FORMAT_R32G32B32_SFLOAT;
@@ -219,14 +225,14 @@ bool LoadModelGeometry(Model& toLoad, VkPipelineVertexInputStateCreateInfo& vert
             loc++;
             attributeDescriptions.push_back(IAD);
         }
-        if (prim.attributes.contains("COLOR_0"))
+        if (primitive.attributes.contains("COLOR_0"))
         {
             VkVertexInputAttributeDescription IAD{};
             IAD.binding = 0;
             IAD.location = 0;
             IAD.offset = offset;
 
-            tinygltf::Accessor access = model.accessors[prim.attributes.at("NORMAL")];
+            tinygltf::Accessor access = model.accessors[primitive.attributes.at("NORMAL")];
             COLRawBuff = getBufferData(access, model);
 
             uint16_t dim, siz;
@@ -366,4 +372,64 @@ bool LoadModelGeometry(Model& toLoad, VkPipelineVertexInputStateCreateInfo& vert
     }
 
     return false;
+}
+
+bool loadModelFromObj(Model& model, const std::string& MODEL_PATH,
+    VkVertexInputBindingDescription& inputBindingDescriptor, std::vector<VkVertexInputAttributeDescription>& InputAttrDesc,
+    DeviceHandler devh, VkQueue trsfrtQueue, VkCommandPool commandPool)
+{
+    //set vertex descriptor
+    inputBindingDescriptor = VertexPositionColorTextCoord::getBindingDescription();
+    auto d = VertexPositionColorTextCoord::getAttributeDescriptions();
+    InputAttrDesc = std::vector(d.begin(), d.end());
+
+    //create objformat loader
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+
+    //check for error
+    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) {
+        throw std::runtime_error(warn + err);
+    }
+
+    //store vertex infos
+    std::vector<VertexPositionColorTextCoord> vertices;
+    std::vector<uint16_t> indices;
+
+    //unicity of vertex => reduce memory footprint
+    std::unordered_map<VertexPositionColorTextCoord, uint32_t> uniqueVertices{};
+
+    //for each shape
+    for (const auto& shape : shapes) {
+        //loop in all indices
+        for (const auto& index : shape.mesh.indices) {
+            VertexPositionColorTextCoord vertex{};
+
+            vertex.pos = {
+                attrib.vertices[3 * index.vertex_index + 0],
+                attrib.vertices[3 * index.vertex_index + 1],
+                attrib.vertices[3 * index.vertex_index + 2]
+            };
+
+            vertex.texCoord = {
+                attrib.texcoords[2 * index.texcoord_index + 0],
+                1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+            };
+
+            vertex.color = { 1.0f, 1.0f, 1.0f };
+
+            if (uniqueVertices.count(vertex) == 0) {
+                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                vertices.push_back(vertex);
+            }
+
+            indices.push_back(uniqueVertices[vertex]);
+        }
+    }
+
+    model.create<VertexPositionColorTextCoord>(vertices, indices, devh, trsfrtQueue, commandPool);
+ 
+    return true;
 }
