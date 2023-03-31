@@ -1,2 +1,2 @@
 # jeu
-yet another c/c++ game using vulkan
+yet another c/c++ project using vulkan
