@@ -4,6 +4,10 @@ set vulkPath=%2
 
 echo Compiling shaders...
 
+:: compile all {name}.vert and {name}.frag file in the same folder
+:: output result in output/{name}.spv
+:: get vulkan path in argument to find glsl compiler
+
 set /A N=0
 if not exist %output% mkdir %output%
 if not exist %output%\shaders mkdir %output%\shaders

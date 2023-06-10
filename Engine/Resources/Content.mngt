@@ -1,0 +1,7 @@
+-- this is a comment
+-- all path are relative to the folder where this file is
+-- s = shader
+-- o = obj model
+s shaders/fragSkBx.frag
+s shaders/vertSkBx.vert
+o Mesh/cube.obj
