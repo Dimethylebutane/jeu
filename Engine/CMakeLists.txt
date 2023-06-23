@@ -3,6 +3,10 @@
 #
 cmake_minimum_required (VERSION 3.19)
 
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED On)
+
 SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 project ("Engine" VERSION 0.0.1 DESCRIPTION "the best game engine i could make")
@@ -10,6 +14,9 @@ message("Started CMake for ${PROJECT_NAME} v${PROJECT_VERSION}...")
 
 # Add source to this project's executable.
 add_executable (${PROJECT_NAME} "jeu.cpp" "jeu.h" "src/SwapChain.cpp" "src/Model.cpp" "src/BuffersUtils.cpp" "src/QueueUtils.cpp" "src/Camera.cpp" "src/DescriptorSet.cpp" "src/SkyBox.cpp" "src/ShaderModulesUtils.cpp" "src/Input.cpp" "src/FileManagement.cpp")
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD_REQUIRED On)
 
 #dependency to LibUtils
 add_dependencies(${PROJECT_NAME} libUtils)
@@ -25,7 +32,7 @@ add_library(GLFW SHARED IMPORTED) # or STATIC instead of SHARED
 
 set_target_properties(GLFW PROPERTIES
   #IMPORTED_LOCATION "${CMAKE_LIBRARY_PATH}/GLFW/glfw-3.3.5.bin.WIN64/glfw-3.3.5.bin.WIN64/lib-vc2022/glfw3.lib"
-  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_INCLUDE_PATH}/GLFW"
+  IMPORTED_LOCATION "${CMAKE_INCLUDE_PATH}/GLFW"
   IMPORTED_IMPLIB "${CMAKE_LIBRARY_PATH}/libglfw.so"
 	#win only tag??
 )

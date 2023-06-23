@@ -14,7 +14,7 @@
 struct UBO_buffmem
 {
     char* pData;
-    [readonly] unsigned char numberOfFrame;
+    unsigned char numberOfFrame;
 
     VkBuffer* uniformBuffers() { return reinterpret_cast<VkBuffer*>(pData); }
     VkDeviceMemory* uniformBuffersMemory() { return  reinterpret_cast<VkDeviceMemory*>(pData + numberOfFrame * sizeof(VkBuffer)); }
@@ -27,7 +27,7 @@ struct UBO_buffmem
 };
 
 template<class UBOClass>
-_NODISCARD UBO_buffmem createUBO(const unsigned char NumberOfFrame, const DeviceHandler devh)
+[[nodiscard]] UBO_buffmem createUBO(const unsigned char NumberOfFrame, const DeviceHandler devh)
 {
     UBO_buffmem r{nullptr, NumberOfFrame};
     r.pData = new char[r.size()]; //allocate memory

@@ -14,4 +14,7 @@ add_library(${LIBNAME}
             STATIC
             "src/Logger.cpp")
 
+set_property(TARGET ${LIBNAME} PROPERTY CXX_STANDARD 20)
+set_property(TARGET ${LIBNAME} PROPERTY CXX_STANDARD_REQUIRED On)
+
 target_include_directories(${LIBNAME} PUBLIC ${CMAKE_SOURCE_DIR}/${LIBNAME}/include)

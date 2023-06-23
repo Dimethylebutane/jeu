@@ -34,7 +34,7 @@ VkRenderPass SkBx::renderpass;
 VkPipeline SkBx::pipeline;
 Model SkBx::model;
 
-_NODISCARD VkRenderPass createRenderPass(SwapChainParam scp, VkDevice device)
+[[nodiscard]] VkRenderPass createRenderPass(SwapChainParam scp, VkDevice device)
 {
     VkRenderPass r;
 
@@ -82,7 +82,7 @@ _NODISCARD VkRenderPass createRenderPass(SwapChainParam scp, VkDevice device)
 }
 
 //needToBedestroyed
-_NODISCARD std::vector<VkFramebuffer> createSWPCHNFrameBuffer(SwapChain& swapchain, VkRenderPass SkBx_renderpass, VkDevice device)
+[[nodiscard]] std::vector<VkFramebuffer> createSWPCHNFrameBuffer(SwapChain& swapchain, VkRenderPass SkBx_renderpass, VkDevice device)
 {
     std::vector<VkFramebuffer> swapChainFramebuffers;
 
@@ -110,7 +110,7 @@ _NODISCARD std::vector<VkFramebuffer> createSWPCHNFrameBuffer(SwapChain& swapcha
     return swapChainFramebuffers;
 }
 
-_NODISCARD VkPipelineLayout createStaticPipelineLayout(VkDevice device)
+[[nodiscard]] VkPipelineLayout createStaticPipelineLayout(VkDevice device)
 {
     VkPipelineLayout pipelineLayoutStatic;
     std::vector<VkDynamicState> dynamicStates = {
@@ -134,7 +134,7 @@ _NODISCARD VkPipelineLayout createStaticPipelineLayout(VkDevice device)
     return pipelineLayoutStatic;
 }
 
-_NODISCARD VkPipeline createSKBXPipeline(VkPipelineLayout pipelineLayoutStatic, VkRenderPass SkBx_renderpass, VkDevice device)
+[[nodiscard]] VkPipeline createSKBXPipeline(VkPipelineLayout pipelineLayoutStatic, VkRenderPass SkBx_renderpass, VkDevice device)
 {
     VkPipeline SkBx_pipeline;
 
@@ -301,7 +301,7 @@ void recordCommandBuffers(std::vector<VkCommandBuffer>& SkBx_commandBuffers, Cam
     }
 }
 
-_NODISCARD std::vector<VkCommandBuffer> createSkBxCommandBuffer(Camera& cam, Model mod, std::vector<VkFramebuffer> framebuffers, VkCommandPool commandPool, SwapChainParam scp, VkDevice device)
+[[nodiscard]] std::vector<VkCommandBuffer> createSkBxCommandBuffer(Camera& cam, Model mod, std::vector<VkFramebuffer> framebuffers, VkCommandPool commandPool, SwapChainParam scp, VkDevice device)
 {
     std::vector<VkCommandBuffer> SkBx_commandBuffers;
     SkBx_commandBuffers.resize(framebuffers.size());

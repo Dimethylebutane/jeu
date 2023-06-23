@@ -1,6 +1,6 @@
 #include "../include/Utils/DescriptorSetUtils.hpp"
 
-_NODISCARD VkDescriptorPool createDescriptorPool(
+[[nodiscard]] VkDescriptorPool createDescriptorPool(
     uint32_t numberOfDescriptor,
     VkDevice device,
     VkDescriptorType type,
@@ -25,7 +25,7 @@ _NODISCARD VkDescriptorPool createDescriptorPool(
     return r;
 }
 
-_NODISCARD VkDescriptorSetLayout createDescriptorSetLayout(VkDevice device,
+[[nodiscard]] VkDescriptorSetLayout createDescriptorSetLayout(VkDevice device,
     VkDescriptorType type,
     VkShaderStageFlags stage)
 {

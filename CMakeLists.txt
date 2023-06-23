@@ -5,8 +5,11 @@ cmake_minimum_required (VERSION 3.19)
 
 SET(CMAKE_VERBOSE_MAKEFILE ON)
 
-set(CMAKE_CXX_COMPILER clang++)
-set(CMAKE_C_COMPILER clang)
+set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+set(CMAKE_C_COMPILER /usr/bin/clang)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED On)
 
 project ("JEU" VERSION 0.0.1 DESCRIPTION "ksdjhksdjh")
 message("Started CMake for ${PROJECT_NAME} v${PROJECT_VERSION}...")

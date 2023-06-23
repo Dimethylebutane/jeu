@@ -8,20 +8,20 @@
 #include "../EngineBuildingBlock/UBO.hpp"
 
 //need to be destroy
-_NODISCARD VkDescriptorPool createDescriptorPool(
+[[nodiscard]] VkDescriptorPool createDescriptorPool(
     uint32_t numberOfDescriptor, 
     VkDevice device,
     VkDescriptorType type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
     VkDescriptorPoolCreateFlags flags = 0);
 
 //need to be destroy
-_NODISCARD VkDescriptorSetLayout createDescriptorSetLayout(VkDevice device,
+[[nodiscard]] VkDescriptorSetLayout createDescriptorSetLayout(VkDevice device,
     VkDescriptorType type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
     VkShaderStageFlags stage = VK_SHADER_STAGE_VERTEX_BIT);
 
 //NO need to be freed (automaticaly freed when pool is destroy)
 template<class UBOClass>
-_NODISCARD std::vector<VkDescriptorSet> createDescriptorSets(uint32_t numberOfFrame, VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool,
+[[nodiscard]] std::vector<VkDescriptorSet> createDescriptorSets(uint32_t numberOfFrame, VkDescriptorSetLayout descriptorSetLayout, VkDescriptorPool descriptorPool,
     VkDevice device, UBO_buffmem ubinst)
 {
     std::vector<VkDescriptorSet> descriptorSets;

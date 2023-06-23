@@ -7,6 +7,8 @@
 #include <array>
 #include <assert.h>
 
+#include <limits>
+
 #include "../EngineBuildingBlock/AppHandler.hpp"
 
 struct SwapChainParam

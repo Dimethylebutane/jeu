@@ -6,7 +6,7 @@
 #include "QueueUtils.hpp"
 #include "../EngineBuildingBlock/AppHandler.hpp"
 
-_NODISCARD  VkCommandPool createCommandPool(const DeviceHandler devh, const VkSurfaceKHR surf)
+[[nodiscard]]  VkCommandPool createCommandPool(const DeviceHandler devh, const VkSurfaceKHR surf)
 {
     VkCommandPool r{};
 

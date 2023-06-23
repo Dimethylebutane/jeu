@@ -1,5 +1,7 @@
 #include "../include/GameStruct/Camera.hpp"
 
+#include <cstring>
+
 void Camera::init(const unsigned char numberOfFrame)
 {
 	assert(numberOfFrame != 0);
