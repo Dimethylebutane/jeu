@@ -91,9 +91,10 @@ void createImageViews(VkDevice device, SwapChain& data)
 void createImageImageView(SwapChain& swapchain, SwapChainSupportDetails swapChainSupport, const VkSurfaceKHR& surface, DeviceHandler& devh)
 {
     uint32_t imageCount = MAX_FRAMES_IN_FLIGHT; // /!\ not guaranted, we want this
-    if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
+    if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
         imageCount = swapChainSupport.capabilities.maxImageCount;
-    }
+    if (imageCount < swapChainSupport.capabilities.minImageCount)
+		imageCount = swapChainSupport.capabilities.minImageCount;
 
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;

@@ -14,6 +14,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED On)
 project ("JEU" VERSION 0.0.1 DESCRIPTION "ksdjhksdjh")
 message("Started CMake for ${PROJECT_NAME} v${PROJECT_VERSION}...")
 
+set(CMAKE_STATIC_LIBRARY_PREFIX "")
+set(CMAKE_SHARED_LIBRARY_PREFIX "")
+
     #define stuff
 #set where to look for lib
 set(CMAKE_LIBRARY_PATH "/usr/lib")

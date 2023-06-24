@@ -364,3 +364,8 @@ bool loadModelFromObj(const std::string& MODEL_PATH)
 
     return true;
 }
+
+int main()
+{
+	return 0;
+}

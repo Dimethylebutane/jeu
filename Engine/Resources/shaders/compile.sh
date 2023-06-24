@@ -1,5 +1,5 @@
-#!/bin/zsh
-output=%1
+#!/bin/bash
+output=$1
 echo Compiling shaders...
 
 #compile all {name}.vert and {name}.frag file in the same folder
@@ -8,14 +8,16 @@ echo Compiling shaders...
 
 mkdir -p $output
 
-FILES=$(pwd)
+FILES=$(pwd)/*
 
 N=0
 
 for f in $FILES
 do
-    if [[ $file == *.frag ]] || [[ $file == *.vert ]]; then
-		glslc $f -o $output/${filename%.*}.spv
+    if [[ $f == *.frag ]] || [[ $f == *.vert ]]
+    then
+		echo -$(basename ${f%.*})
+		glslc $f -o $output/$(basename ${f%.*}).spv
 		((N+=1))
     fi
 done
