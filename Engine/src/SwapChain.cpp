@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-SwapChainParam chooseParam(SwapChainParam wanted, SwapChainSupportDetails availables)
+SwapChainParam chooseParam(SwapChainParam wanted, const SwapChainSupportDetails availables)
 {
     SwapChainParam r{};
     r.imageFormat = availables.formats[0];
@@ -40,7 +40,8 @@ SwapChainParam chooseParam(SwapChainParam wanted, SwapChainSupportDetails availa
     return r;
 }
 
-SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface) {
+SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface)
+{
     SwapChainSupportDetails details;
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
@@ -64,7 +65,7 @@ SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurface
     return details;
 }
 
-void createImageViews(VkDevice device, SwapChain& data)
+void createVkImageViews(VkDevice device, SwapChain& data)
 {
     for (size_t i = 0; i < data.imageData.size(); i++) {
         VkImageViewCreateInfo createInfo{};
@@ -88,7 +89,7 @@ void createImageViews(VkDevice device, SwapChain& data)
     }
 }
 
-void createImageImageView(SwapChain& swapchain, SwapChainSupportDetails swapChainSupport, const VkSurfaceKHR& surface, DeviceHandler& devh)
+void createSwapChain(SwapChain& swapchain, SwapChainSupportDetails swapChainSupport, const VkSurfaceKHR& surface, DeviceHandler& devh)
 {
     uint32_t imageCount = MAX_FRAMES_IN_FLIGHT; // /!\ not guaranted, we want this
     if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
@@ -142,7 +143,7 @@ void createImageImageView(SwapChain& swapchain, SwapChainSupportDetails swapChai
             swapchain.imageData[i].image = images[i];
     }
 
-    createImageViews(devh.device, swapchain);
+    createVkImageViews(devh.device, swapchain);
 }
 
 void SwapChain::init(GLFWwindow* window, DeviceHandler devh, VkSurfaceKHR surface, SwapChainParam Param)
@@ -154,7 +155,7 @@ void SwapChain::init(GLFWwindow* window, DeviceHandler devh, VkSurfaceKHR surfac
 
     this->param = Param;
 
-    createImageImageView(*this, swapChainSupport, surface, devh);
+    createSwapChain(*this, swapChainSupport, surface, devh);
 
     //FENCE
     fences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -200,5 +201,5 @@ void SwapChain::recreate(GLFWwindow* window, DeviceHandler devh, VkSurfaceKHR su
 
     this->param = Param;
 
-    createImageImageView(*this, swapChainSupport, surface, devh);
+    createSwapChain(*this, swapChainSupport, surface, devh);
 }

@@ -6,6 +6,7 @@
 #include <exception>
 #include <string_view>
 #include <filesystem>
+#include <string>
 
 #include "SpinLock.hpp"
 #include "Logger.hpp"
@@ -13,10 +14,8 @@
 #define ENDL "\n"
 
 #pragma region LOGMACRO
-//uses std::cout the std buffered output stream - thread safe
 
 #define LOG(ARGS) defaultLogger << "[L] " << ARGS;
-//uses std::clog the std buffered error stream - thread safe
 #define LOGERR(ARGS) defaultLogger << "[E] " << ARGS;
 #define LOGWARN(ARGS) defaultLogger << "[W] " << ARGS;
 
@@ -26,16 +25,19 @@
 #define DERR(ARGS) ;
 #define DWARN(ARGS) ;
 #else
-//uses std::cout the std buffered output stream - thread safe
 #define DLOG(ARGS) defaultLogger << "[L] " << ARGS;
-//uses std::clog the std buffered error stream - thread safe
 #define DERR(ARGS) defaultLogger <<  "[E] " << ARGS;
-//uses std::clog the std buffered error stream - thread safe
 #define DWARN(ARGS) defaultLogger << "[W] " << ARGS;
 #endif
-
 #pragma endregion
 
+inline void throwRuntimeError(std::string msg, const int line=0, const char* func="?", const char* file="?")
+{
+	LOGERR("Error in file " << file << " line " << line << " in function " << func << "\n	" << msg);
+	throw std::runtime_error(msg + "\nError in file " + file + " line " + std::to_string(line) + " in function " + func );
+}
+
+#define THROW_RUNTIME_ERROR(MSG) throwRuntimeError(MSG, __LINE__, __FUNCTION__, __FILE_NAME__)
 
 //pause (presss any key to cintinue)
 #ifdef _WIN64

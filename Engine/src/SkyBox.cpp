@@ -247,7 +247,7 @@ Model SkBx::model;
 void recordCommandBuffers(std::vector<VkCommandBuffer>& SkBx_commandBuffers, Camera& cam, std::vector<VkFramebuffer>& framebuffers, VkExtent2D ext, Model mod)
 {
     int imageIndex = 0;
-    for (auto commandBuffer : SkBx_commandBuffers)
+    for (auto commandBuffer : SkBx_commandBuffers) //SkBx_commandBuffers[2] = nullptr
     {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -309,9 +309,9 @@ void recordCommandBuffers(std::vector<VkCommandBuffer>& SkBx_commandBuffers, Cam
     //TODO: secondary command buffer
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = commandPool;
+    allocInfo.commandPool = commandPool; //where is created ?
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = MAX_FRAMES_IN_FLIGHT;
+    allocInfo.commandBufferCount = (uint32_t)(SkBx_commandBuffers.size());
 
     if (vkAllocateCommandBuffers(device, &allocInfo, SkBx_commandBuffers.data()) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate command buffers!");
@@ -336,7 +336,7 @@ void SkBx::init(Camera& cam, SwapChain& swapchain, VkCommandPool commandPool, Vk
 {
     framebuffers = createSWPCHNFrameBuffer(swapchain, SkBx::renderpass, device);
 
-    commandBuffers = createSkBxCommandBuffer(cam, SkBx::model, framebuffers, commandPool, swapchain.param, device);
+    commandBuffers = createSkBxCommandBuffer(cam, SkBx::model, framebuffers, commandPool, swapchain.param, device); //TODO: bug here
 }
 
 void SkBx::recreate(SwapChain& swapchain, Camera& cam, VkDevice device)

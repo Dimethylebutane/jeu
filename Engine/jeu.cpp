@@ -98,7 +98,7 @@ private:
     //TODO: virtual and override this function when engine will be separated from game
     void createGameStruct()
     {
-        m_defaultCam.init(static_cast<char>(m_swapchain.imageData.size()));
+       m_defaultCam.init(static_cast<char>(m_swapchain.imageData.size()));
         m_defaultCam.m_data.proj = glm::perspective(glm::radians(45.0f), m_swapchain.param.extent.width / (float)m_swapchain.param.extent.height, 0.1f, 10.0f);
         m_defaultCam.m_data.proj[1][1] *= -1;
         m_defaultCam.updateCamPosition(glm::vec3(0, 0, 0));
