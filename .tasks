@@ -1,0 +1,28 @@
+# vim: set fenc=utf-8 ft=dosini:
+# see: https://github.com/skywind3000/asynctasks.vim/wiki/Task-Config
+
+# define a new task named "file-build"
+[file-build]
+command=zig build compile
+cwd=$(VIM_ROOT)
+output=quickfix
+errorformat=%f:%l:%m
+save=1
+
+[file-build-all]
+command=zig build run
+cwd=$(VIM_ROOT)
+output=terminal
+pos=external
+errorformat=%f:%l:%m
+save=1
+
+[file-run]
+command=zig build compile; lldb $(pwd)/zig-out/bin/Jeu
+cwd=$(VIM_ROOT)
+output=terminal
+pos=toggleterm
+errorformat=%f:%l:%m
+
+# save file before execute
+save=1

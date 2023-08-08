@@ -4,7 +4,7 @@
 #include "jeu.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
+#include <tinyobjloader/tiny_obj_loader.h>
 
 class HelloTriangleApplication {
 public:
@@ -486,7 +486,7 @@ int main() {
     LOG(RESOURCES_PATH)
 
         app.run();
-    PAUSE;
+    // PAUSE;
 
     return EXIT_SUCCESS;
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include "MacroGlobal.hpp"
 
-#include <tiny_gltf.h>
+#include <tinygltf/tiny_gltf.h>
 
 #include <fstream>
 

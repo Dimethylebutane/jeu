@@ -138,6 +138,8 @@ Model SkBx::model;
 {
     VkPipeline SkBx_pipeline;
 
+    LOG("create skbx pipeline" << RESOURCES_PATH);
+    
     auto vertShaderCode = readFile(RESOURCES_PATH "/shaders/vertSkBx.spv");
     auto fragShaderCode = readFile(RESOURCES_PATH "/shaders/fragSkBx.spv");
 

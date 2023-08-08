@@ -1,4 +1,6 @@
 .vs/*
 out/*
 build/*
+zig-out/*
+zig-cache/*
 MakeFile

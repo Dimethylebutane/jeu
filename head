@@ -1,0 +1,76 @@
+
+Usage: /home/greg/prgrm/zigc/zig-linux-x86_64-0.12.0-dev.7+90fde14c5/zig build [steps] [options]
+
+Steps:
+  install (default)            Copy build artifacts to prefix path
+  uninstall                    Remove build artifacts from prefix path
+  run                          Run the app
+  compile                      Compiles the game
+  compile_utils                Compiles src/main.zig
+  compile_content_builder      Compiles content builder
+  compile_all                  Compiles all
+
+General Options:
+  -p, --prefix [path]          Override default install prefix
+  --prefix-lib-dir [path]      Override default library directory path
+  --prefix-exe-dir [path]      Override default executable directory path
+  --prefix-include-dir [path]  Override default include directory path
+
+  --sysroot [path]             Set the system root directory (usually /)
+  --search-prefix [path]       Add a path to look for binaries, libraries, headers
+  --libc [file]                Provide a file which specifies libc paths
+
+  -fdarling,  -fno-darling     Integration with system-installed Darling to
+                               execute macOS programs on Linux hosts
+                               (default: no)
+  -fqemu,     -fno-qemu        Integration with system-installed QEMU to execute
+                               foreign-architecture programs on Linux hosts
+                               (default: no)
+  --glibc-runtimes [path]      Enhances QEMU integration by providing glibc built
+                               for multiple foreign architectures, allowing
+                               execution of non-native programs that link with glibc.
+  -frosetta,  -fno-rosetta     Rely on Rosetta to execute x86_64 programs on
+                               ARM64 macOS hosts. (default: no)
+  -fwasmtime, -fno-wasmtime    Integration with system-installed wasmtime to
+                               execute WASI binaries. (default: no)
+  -fwine,     -fno-wine        Integration with system-installed Wine to execute
+                               Windows programs on Linux hosts. (default: no)
+
+  -h, --help                   Print this help and exit
+  -l, --list-steps             Print available steps
+  --verbose                    Print commands before executing them
+  --color [auto|off|on]        Enable or disable colored error messages
+  --summary [mode]             Control the printing of the build summary
+    all                        Print the build summary in its entirety
+    failures                   (Default) Only print failed steps
+    none                       Do not print the build summary
+  -j<N>                        Limit concurrent jobs (default is to use all CPU cores)
+  --maxrss <bytes>             Limit memory usage (default is to use available memory)
+
+Project-Specific Options:
+  -Doptimize=[enum]            Prioritize performance, safety, or binary size (-O flag)
+                                 Supported Values:
+                                   Debug
+                                   ReleaseSafe
+                                   ReleaseFast
+                                   ReleaseSmall
+  -Dtarget=[string]            The CPU architecture, OS, and ABI to build for
+  -Dcpu=[string]               Target CPU features to add or subtract
+
+Advanced Options:
+  -freference-trace[=num]      How many lines of reference trace should be shown per compile error
+  -fno-reference-trace         Disable reference trace
+  --build-file [file]          Override path to build.zig
+  --cache-dir [path]           Override path to local Zig cache directory
+  --global-cache-dir [path]    Override path to global Zig cache directory
+  --zig-lib-dir [arg]          Override path to Zig lib directory
+  --build-runner [file]        Override path to build runner
+  --debug-log [scope]          Enable debugging the compiler
+  --debug-pkg-config           Fail if unknown pkg-config flags encountered
+  --verbose-link               Enable compiler debug output for linking
+  --verbose-air                Enable compiler debug output for Zig AIR
+  --verbose-llvm-ir[=file]     Enable compiler debug output for LLVM IR
+  --verbose-llvm-bc=[file]     Enable compiler debug output for LLVM BC
+  --verbose-cimport            Enable compiler debug output for C imports
+  --verbose-cc                 Enable compiler debug output for C compilation
+  --verbose-llvm-cpu-features  Enable compiler debug output for LLVM CPU features

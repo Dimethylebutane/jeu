@@ -2,7 +2,9 @@
 
 std::vector<char> readFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
+    
+    DLOG("readFile: " << filename);
+    
     if (!file.is_open())
 	{
 		THROW_RUNTIME_ERROR("failed to open file!");

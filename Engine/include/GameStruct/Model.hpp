@@ -5,9 +5,9 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 
-#include <tiny_gltf.h>
+#include <tinygltf/tiny_gltf.h>
 
-#include <tiny_obj_loader.h>
+#include <tinyobjloader/tiny_obj_loader.h>
 
 #include <vulkan/vulkan.h>
 
