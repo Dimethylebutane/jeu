@@ -11,19 +11,14 @@ const inclPath = "/usr/include";
 pub fn build(b: *std.build.Builder) void {
 
     //  CWD=$(pwd)
-    const PREF = "-D RESOURCES_PATH=\"";
-    var RESPATH: [100]u8 = undefined;
-    @memcpy(RESPATH[0..PREF.len], PREF);
-    // /zig-out/Resources
-    var cwd = os.getcwd(RESPATH[PREF.len..]) catch @panic("Cannot determine current path directory");
-
+    const PREF = "\"";
     const SUFF = "/zig-out/Resources\"";
-    const d = cwd.len + SUFF.len;
-    var i: u16 = 0;
-    while (i < SUFF.len) : (i += 1) {
-        RESPATH[d + i] = SUFF[i];
-    }
-    RESPATH[d + i] = 0;
+
+    var RESPATH: [100]u8 = undefined;
+
+    @memcpy(RESPATH[0..PREF.len], PREF);
+    var cwd = os.getcwd(RESPATH[PREF.len..]) catch @panic("Cannot determine current path directory");
+    @memcpy(RESPATH[cwd.len + PREF.len .. PREF.len + cwd.len + SUFF.len], SUFF);
 
     const flags = [_][]const u8{
         "-Wall",
@@ -32,7 +27,6 @@ pub fn build(b: *std.build.Builder) void {
         "-msse3",
         "-std=c11",
         "-std=c++20",
-        RESPATH[0 .. PREF.len + cwd.len + SUFF.len],
     };
 
     const optimize = b.standardOptimizeOption(.{});
@@ -51,6 +45,7 @@ pub fn build(b: *std.build.Builder) void {
         .target = target,
         .optimize = optimize,
     });
+    jeuCompileStep.defineCMacro("RESOURCES_PATH", RESPATH[0 .. PREF.len + cwd.len + SUFF.len]);
 
     const contentBuilderCompileStep = b.addExecutable(.{
         .name = "ContentBuilder",
