@@ -17,8 +17,10 @@ pub fn build(b: *std.build.Builder) void {
     var RESPATH: [100]u8 = undefined;
 
     @memcpy(RESPATH[0..PREF.len], PREF);
-    var cwd = os.getcwd(RESPATH[PREF.len..]) catch @panic("Cannot determine current path directory");
+    const cwd = os.getcwd(RESPATH[PREF.len..]) catch @panic("Cannot determine current path directory");
     @memcpy(RESPATH[cwd.len + PREF.len .. PREF.len + cwd.len + SUFF.len], SUFF);
+
+    var compile_shader_step = b.addSystemCommand(&[_][]const u8{ "/home/greg/prgrm/c++/jeu/Engine/Resources/shaders/compile.sh", "/home/greg/prgrm/c++/jeu/zig-out/Resources/shaders" });
 
     const flags = [_][]const u8{
         "-Wall",
@@ -33,11 +35,12 @@ pub fn build(b: *std.build.Builder) void {
     const target = b.standardTargetOptions(.{});
 
     const libUtilsCompileStep = b.addStaticLibrary(.{
-        .name = "libUtil",
+        .name = "Util",
         .root_source_file = null,
         .target = target,
         .optimize = optimize,
     });
+    // std.Build.addInstallHeaderFile();
 
     const jeuCompileStep = b.addExecutable(.{
         .name = "Jeu",
@@ -66,9 +69,12 @@ pub fn build(b: *std.build.Builder) void {
 
     var run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);
+    run_step.dependOn(&compile_shader_step.step);
 
     var compile_jeu_step = b.step("compile", "Compiles the game");
+    compile_jeu_step.dependOn(&jeuCompileStep.step);
     compile_jeu_step.dependOn(&b.addInstallArtifact(jeuCompileStep, .{}).step);
+    compile_jeu_step.dependOn(&b.addInstallArtifact(libUtilsCompileStep, .{}).step);
 
     var compile_libUtil_step = b.step("compile_utils", "Compiles libUtils");
     compile_libUtil_step.dependOn(&libUtilsCompileStep.step);
@@ -76,7 +82,8 @@ pub fn build(b: *std.build.Builder) void {
 
     var compile_contentBuilder_step = b.step("compile_content_builder", "Compiles content builder");
     compile_contentBuilder_step.dependOn(&contentBuilderCompileStep.step);
-    compile_jeu_step.dependOn(&b.addInstallArtifact(contentBuilderCompileStep, .{}).step);
+    compile_contentBuilder_step.dependOn(&b.addInstallArtifact(contentBuilderCompileStep, .{}).step);
+    compile_contentBuilder_step.dependOn(&b.addInstallArtifact(libUtilsCompileStep, .{}).step);
 
     var compile_all_step = b.step("compile_all", "Compiles all");
     compile_all_step.dependOn(compile_jeu_step);

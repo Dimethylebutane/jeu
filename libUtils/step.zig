@@ -6,9 +6,11 @@ pub fn compileLibUtils(flags: []const []const u8, b: *std.build.Builder, LibUtil
     //-----------------SOURCES
     var libUtilSources = .{relPath ++ "/Logger.cpp"};
 
+    _ = b;
+
     //-----------------Lib Utils
     LibUtils.addCSourceFiles(&libUtilSources, flags);
     LibUtils.linkLibC();
     LibUtils.linkLibCpp();
-    b.installArtifact(LibUtils);
+    // b.installArtifact(LibUtils);
 }

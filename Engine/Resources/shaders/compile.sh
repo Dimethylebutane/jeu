@@ -1,7 +1,7 @@
 #!/bin/bash
 output=$1
 echo Compiling shaders...
-
+echo $(pwd)
 #compile all {name}.vert and {name}.frag file in the same folder
 #output result in output/{name}.spv
 #get vulkan path in argument to find glsl compiler

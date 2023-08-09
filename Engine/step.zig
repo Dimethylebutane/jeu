@@ -5,6 +5,8 @@ const relPath = "Engine/src/";
 pub fn compileEngine(flags: []const []const u8, b: *std.build.Builder, Engine: *std.build.Step.Compile, LibUtils: *std.build.Step.Compile) void {
     var EngineSources = .{ "Engine/jeu.cpp", relPath ++ "SwapChain.cpp", relPath ++ "Model.cpp", relPath ++ "BuffersUtils.cpp", relPath ++ "QueueUtils.cpp", relPath ++ "Camera.cpp", relPath ++ "DescriptorSet.cpp", relPath ++ "SkyBox.cpp", relPath ++ "ShaderModulesUtils.cpp", relPath ++ "Input.cpp", relPath ++ "FileManagement.cpp" };
 
+    _ = b;
+
     Engine.linkSystemLibrary("vulkan");
     Engine.linkSystemLibrary("glfw");
 
@@ -15,5 +17,5 @@ pub fn compileEngine(flags: []const []const u8, b: *std.build.Builder, Engine: *
     Engine.addCSourceFiles(&EngineSources, flags);
     // Engine.linkLibC();
     Engine.linkLibCpp();
-    b.installArtifact(Engine);
+    // b.installArtifact(Engine);
 }
