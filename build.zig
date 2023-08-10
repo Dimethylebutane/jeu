@@ -20,7 +20,10 @@ pub fn build(b: *std.build.Builder) void {
     const cwd = os.getcwd(RESPATH[PREF.len..]) catch @panic("Cannot determine current path directory");
     @memcpy(RESPATH[cwd.len + PREF.len .. PREF.len + cwd.len + SUFF.len], SUFF);
 
-    var compile_shader_step = b.addSystemCommand(&[_][]const u8{ "/home/greg/prgrm/c++/jeu/Engine/Resources/shaders/compile.sh", "/home/greg/prgrm/c++/jeu/zig-out/Resources/shaders" });
+    var compile_shader_step = b.addSystemCommand(&[_][]const u8{
+        "/home/greg/prgrm/c++/jeu/Engine/Resources/shaders/compile.sh",
+        "/home/greg/prgrm/c++/jeu/zig-out/Resources/shaders",
+    });
 
     const flags = [_][]const u8{
         "-Wall",
